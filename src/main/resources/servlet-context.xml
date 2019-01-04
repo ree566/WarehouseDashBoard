@@ -168,5 +168,7 @@
 
 <!--    <import resource="classpath:spring-security.xml"/>
     <import resource="classpath:spring-quartz.xml"/>-->
+    
+    <import resource="classpath:spring-websocket.xml"/>
 
 </beans>

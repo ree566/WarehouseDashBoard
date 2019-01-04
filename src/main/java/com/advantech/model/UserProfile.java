@@ -6,6 +6,7 @@
 package com.advantech.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.voodoodyne.jackson.jsog.JSOGGenerator;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +37,8 @@ public class UserProfile implements java.io.Serializable {
     private int id;
     private String name = UserProfileType.USER.getUserProfileType();
     private String description;
+    
+    @JsonIgnore
     private Set<User> users = new HashSet<>(0);
 
     public UserProfile() {
