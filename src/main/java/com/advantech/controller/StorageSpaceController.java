@@ -10,6 +10,7 @@ import com.advantech.model.StorageSpace;
 import com.advantech.model.Warehouse;
 import com.advantech.service.FloorService;
 import com.advantech.service.StorageSpaceService;
+import static com.google.common.base.Preconditions.checkArgument;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,14 +31,15 @@ public class StorageSpaceController extends CrudController<Warehouse> {
 
     @Autowired
     private StorageSpaceService storageSpaceService;
-    
+
     @Autowired
     private FloorService floorService;
 
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
     protected List<StorageSpace> findAll(@RequestParam int floor_id) throws Exception {
-        Floor f = floorService.findById(floor_id).get();
+        Floor f = floorService.getOne(floor_id);
+        checkArgument(f != null, "No storageSpace in setting, please try again.");
         return storageSpaceService.findByFloor(f);
     }
 

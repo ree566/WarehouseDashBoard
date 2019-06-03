@@ -42,7 +42,7 @@ public class WarehouseController extends CrudController<Warehouse> {
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
     protected List<Warehouse> findAll(@RequestParam int floor_id) throws Exception {
-        Floor f = floorService.findById(floor_id).get();
+        Floor f = floorService.getOne(floor_id);
         return warehouseService.findByFloorAndFlag(f, 0);
     }
 

@@ -28,8 +28,8 @@ public class FloorService {
         return repo.findAll();
     }
 
-    public Optional<Floor> findById(Integer id) {
-        return repo.findById(id);
+    public Floor getOne(Integer id) {
+        return repo.getOne(id);
     }
 
 }
