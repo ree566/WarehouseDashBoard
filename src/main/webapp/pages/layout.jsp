@@ -6,6 +6,14 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+<sec:authentication var="user" property="principal" />
+<sec:authorize access="isAuthenticated()"  var="isLogin" />
+<sec:authorize access="hasRole('USER')"  var="isUser" />
+<sec:authorize access="hasRole('OPER')"  var="isOper" />
+<sec:authorize access="hasRole('ADMIN')"  var="isAdmin" />
+
 <c:if test="${param.floor_id == null}">
     <c:redirect url="" />
 </c:if>
@@ -40,6 +48,9 @@
                 color: #FAFCFD;
                 cursor: pointer;
                 z-index: 1000;
+            }
+            body{
+                font-family: 微軟正黑體;
             }
         </style>
 
@@ -79,7 +90,7 @@
                         scrollTop: 0
                     }, 100);
                 });
-                
+
                 $(window).scroll(function () {
                     if ($(this).scrollTop() > 200) {
                         $('#gotop').fadeIn("fast");
@@ -102,7 +113,7 @@
                 </div>
 
                 <div class="sidebar-header">
-                    <h3>倉儲看板</h3>
+                    <h3>${initParam.pageTitle}</h3>
                 </div>
 
                 <ul class="list-unstyled components">
@@ -110,20 +121,20 @@
                     <li class="active">
                         <a href="layout.jsp?content=dashboard_2&floor_id=2#">Home</a>
                         <!--<a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>-->
-<!--                        <ul class="collapse list-unstyled" id="homeSubmenu">
-                            <li>
-                                <a href="#">Home 1</a>
-                            </li>
-                            <li>
-                                <a href="#">Home 2</a>
-                            </li>
-                            <li>
-                                <a href="#">Home 3</a>
-                            </li>
-                        </ul>-->
+                        <!--                        <ul class="collapse list-unstyled" id="homeSubmenu">
+                                                    <li>
+                                                        <a href="#">Home 1</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#">Home 2</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#">Home 3</a>
+                                                    </li>
+                                                </ul>-->
                     </li>
                     <li>
-                        <a href="layout.jsp?content=poDashboard_1&floor_id=2#">排程看板</a>
+                        <a href="<c:url value="layout.jsp?content=poDashboard&floor_id=2#" />">排程看板</a>
                         <a href="#pageSubmenu">Pages</a>
                     </li>
                     <li>
@@ -147,18 +158,26 @@
 
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="nav navbar-nav ml-auto">
-                                <li class="nav-item active">
-                                    <a class="nav-link" href="#">Page</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Page</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Page</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Page</a>
-                                </li>
+                                <c:if test="${isLogin}">
+                                    <li class="nav-item active">
+                                        <font class="nav-link">Hello, <c:out value="${user.username}" /></font>
+                                    </li>
+                                    <li class="nav-item active">
+                                        <a href="<c:url value="/logout" />" class="nav-link">登出</a>
+                                    </li>
+                                </c:if>
+                                <!--                                <li class="nav-item active">
+                                                                    <a class="nav-link" href="#">Page</a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link" href="#">Page</a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link" href="#">Page</a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link" href="#">Page</a>
+                                                                </li>-->
                             </ul>
                         </div>
 
@@ -169,7 +188,13 @@
                         <h3 class="text-muted">WS Test Page Client</h3>
                     </div>
                     <div class="row">
-                        <jsp:include page="${param.content}.jsp"/>
+                        <c:catch var="e">
+                            <c:import url="${param.content}.jsp" />
+                            <%--<jsp:include page="${param.content}.jsp"/>--%>
+                        </c:catch>
+                        <c:if test="${!empty e}">
+                            Error: page not found
+                        </c:if>
                     </div>
                 </div>
             </div>

@@ -4,19 +4,27 @@
  * and open the template in the editor.
  */
 
+import com.advantech.helper.HibernateObjectPrinter;
 import com.advantech.model.Floor;
+import com.advantech.model.Line;
+import com.advantech.model.LineSchedule;
+import com.advantech.model.LineScheduleStatus;
 import com.advantech.model.StorageSpace;
 import com.advantech.model.User;
 import com.advantech.model.UserNotification;
 import com.advantech.model.Warehouse;
 import com.advantech.model.WarehouseEvent;
 import com.advantech.repo.FloorRepository;
+import com.advantech.repo.LineRepository;
+import com.advantech.repo.LineScheduleRepository;
+import com.advantech.repo.LineScheduleStatusRepository;
 import com.advantech.repo.StorageSpaceRepository;
 import com.advantech.repo.UserNotificationRepository;
 import com.advantech.repo.UserRepository;
 import com.advantech.repo.WarehouseEventRepository;
 import com.advantech.repo.WarehouseRepository;
 import java.util.List;
+import org.joda.time.DateTime;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +63,12 @@ public class TestRepository {
 
     @Autowired
     private WarehouseEventRepository warehouseEventRepo;
+    
+    @Autowired
+    private LineRepository lineRepo;
+    
+    @Autowired
+    private LineScheduleRepository lineScheduleRepo;
 
 //    @Test
     @Transactional
@@ -101,7 +115,7 @@ public class TestRepository {
 
     }
     
-    @Test
+//    @Test
     @Transactional
     @Rollback(true)
     public void testWarehouse() {
@@ -111,6 +125,51 @@ public class TestRepository {
 
         assertEquals(2, l.size());
 
+    }
+    
+//    @Test
+    @Transactional
+    @Rollback(false)
+    public void testLineSchedule() {
+        Line line = this.lineRepo.getOne(1);
+
+        assertNotNull(line);
+        
+        LineSchedule sche = new LineSchedule("TEST", "TEST", 12, line);
+
+        this.lineScheduleRepo.save(sche);
+
+    }
+    
+    @Autowired
+    private LineScheduleStatusRepository lineScheduleStatusRepo;
+    
+//    @Test
+    @Transactional
+    @Rollback(false)
+    public void testLineScheduleStatus() {
+        LineScheduleStatus lineStatus = this.lineScheduleStatusRepo.getOne(1);
+
+        assertNotNull(lineStatus);
+        
+        LineSchedule sche = this.lineScheduleRepo.getOne(3);
+        
+        assertNotNull(sche);
+        
+        sche.setLineScheduleStatus(lineStatus);
+
+        this.lineScheduleRepo.save(sche);
+
+    }
+    
+    @Test
+    @Transactional
+    @Rollback(true)
+    public void testLineScheduleStatus2() {
+        DateTime sD = new DateTime().withHourOfDay(0);
+        DateTime eD = new DateTime().withHourOfDay(23);
+        LineSchedule schedule = this.lineScheduleRepo.findFirstByPoAndCreateDateBetween("968SPUDSC0", sD.toDate(), eD.toDate());
+        HibernateObjectPrinter.print(schedule);
     }
 
 }

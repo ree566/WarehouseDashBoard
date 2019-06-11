@@ -6,6 +6,7 @@
 package com.advantech.service;
 
 import com.advantech.model.Floor;
+import com.advantech.model.LineScheduleStatus;
 import com.advantech.model.User;
 import com.advantech.model.Warehouse;
 import com.advantech.model.WarehouseEvent;
@@ -30,6 +31,12 @@ public class WarehouseService {
     @Autowired
     private WarehouseEventService warehouseEventService;
 
+    @Autowired
+    private LineScheduleStatusService lineScheduleStatusService;
+
+    @Autowired
+    private LineScheduleService lineScheduleService;
+
     public List<Warehouse> findAll() {
         return repo.findAll();
     }
@@ -46,6 +53,23 @@ public class WarehouseService {
         repo.save(w);
         WarehouseEvent e = new WarehouseEvent(w, user, action);
         warehouseEventService.save(e);
+
+        LineScheduleStatus status = null;
+        if (null == action) {
+
+        } else {
+            switch (action) {
+                case "PUT_IN":
+                    status = this.lineScheduleStatusService.getOne(2);
+                    break;
+                case "PULL_OUT":
+                    status = this.lineScheduleStatusService.getOne(4);
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
+        this.lineScheduleService.updateStatus(w.getPo(), status);
     }
 
 }

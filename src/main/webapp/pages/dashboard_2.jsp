@@ -62,19 +62,20 @@
                         for (var i = 0; i < areas.length; i++) {
                             var str = areas[i];
                             area_select.append("<option value='" + str.id + "'>" + str.name + "</option>");
-                            dashboard.append("<div id='STORAGE_" + str.id + "' class='col-6 po-list' data-toggle='" + str.name + "'><label for='" + str.name + "'>" + str.name +
-                                    "</label><a class='storage-faq'><span class='fa fa-question-sign' title='Location'></span></a><div id='po_content_" +
+                            dashboard.append("<div id='STORAGE_" + str.id + "' class='col-6 po-list'><label for='" + str.name + "' data-toggle='" + str.name + "'>" + str.name +
+                                    "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-question-sign' title='Location'></span></a><div id='po_content_" +
                                     str.id + "' class='po_content'></div></div>");
                         }
                         getWarehouse();
 
                         //regist faq button event
                         $('body').on('click', '.storage-faq, #dashboard label', function () {
-                            highlightSelectArea();
+                            var labelName = $(this).attr("data-toggle");
+                            var target = $("#imagemodal #polygon-" + labelName);
+                            highlightSelectArea(target);
                             $('#imagemodal').modal('show');
                         });
 
-                        //                            initHintCoverGroup(areas);
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         showMsg(xhr.responseText);
@@ -82,13 +83,16 @@
                 });
             }
 
-            function highlightSelectArea() {
+            function highlightSelectArea(target) {
+                if(target.length == 0){
+                    return;
+                }
                 var interval;
-                var area = $("#imagemodal #polygon-7");
+                var area = target;
                 area.trigger("hover");
                 interval = setInterval(function () {
                     area.toggleClass("active");
-                }, 1000);
+                }, 750);
 
                 $('#imagemodal').on('hidden.bs.modal', function () {
                     clearInterval(interval);
@@ -146,7 +150,7 @@
                             ws.send("ADD");
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
-                            console.log(xhr.responseText);
+                            alert(xhr.responseText);
                         }
                     });
                 }
@@ -166,7 +170,7 @@
                             ws.send("REMOVE");
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
-                            console.log(xhr.responseText);
+                            alert(xhr.responseText);
                         }
                     });
                 }
@@ -214,7 +218,7 @@
             function connectToServer() {
 
                 try {
-                    ws = new WebSocket("ws://" + hostname + "/WarehouseDashBoard/myHandler1");
+                    ws = new WebSocket("ws://" + hostname + "/WarehouseDashBoard/myHandler");
 
                     ws.onopen = function () {
                         $("#connectionStatus").html("Connected");
@@ -252,18 +256,14 @@
             <div class="modal-content">              
                 <div class="modal-body">
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100%" viewBox="0 0 326 904" xml:space="preserve">
-                        <image overflow="visible" width="326" height="904" style="opacity: 0.3" xlink:href="https://i.imgur.com/curHYeL.png"></image>
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100%" viewBox="0 0 502 289" xml:space="preserve">
+                        <image overflow="visible" width="502" height="289" xlink:href="https://i.imgur.com/COK2JR1.png"></image>
                         <g id="items" class="">
-                            <polygon id="polygon-1" class="polygon" points=" 27.53,402.35 27.05,436.99 41.00,436.99 41.96,404.76" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-2" class="polygon" points=" 48.69,404.28 47.73,435.54 61.20,436.03 61.68,405.72" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-3" class="polygon" points=" 68.90,405.24 67.94,436.03 80.92,436.03 79.48,403.79" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-4" class="polygon" points=" 87.18,407.16 87.66,436.99 100.64,436.99 101.13,407.16" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-5" class="polygon" points=" 13.10,455.27 13.10,486.05 26.09,486.54 26.09,457.67" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-6" class="polygon" points=" 34.26,454.31 33.78,485.57 47.25,485.09 46.77,454.31" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-7" class="polygon" points=" 55.91,455.27 54.95,485.57 67.45,485.09 67.45,454.79" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-8" class="polygon" points=" 75.63,454.79 76.11,484.13 89.58,485.09 89.10,453.82" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-9" class="polygon" points=" 95.83,454.31 95.35,483.17 109.30,484.13 110.26,454.79" transform="translate(0,0) scale(1,1)"></polygon>
+                            <polygon id="polygon-A5" class="polygon" points=" 461.85,82.89 461.85,97.81 485.19,97.81 485.58,84.80" transform="translate(0,0) scale(1,1)"></polygon>
+                            <polygon id="polygon-A4" class="polygon" points=" 461.85,106.99 462.23,120.01 484.43,120.39 485.58,106.61" transform="translate(0,0) scale(1,1)"></polygon>
+                            <polygon id="polygon-A3" class="polygon" points=" 462.23,130.33 463.00,143.73 486.34,144.11 485.58,129.19" transform="translate(0,0) scale(1,1)"></polygon>
+                            <polygon id="polygon-A2" class="polygon" points=" 461.47,152.92 461.47,166.31 485.19,166.31 485.20,154.06" transform="translate(0,0) scale(1,1)"></polygon>
+                            <polygon id="polygon-A1" class="polygon" points=" 461.47,174.35 462.62,190.80 485.58,190.80 485.96,174.35" transform="translate(0,0) scale(1,1)"></polygon>
                         </g>
                     </svg>
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
@@ -322,33 +322,17 @@
             </div>
             <div id="totalMap-area" class="col-12">
                 <div class="row">
-                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100%" viewBox="0 0 1337 481" xml:space="preserve" class="">
 
-                        <image overflow="visible" width="1337" height="481" xlink:href="https://i.imgur.com/p3pfNkx.png" />
-                        <g id="items" class="">
-                            <polygon id="polygon-1" class="polygon" points=" 596.79,336.18 597.24,357.01 649.99,359.23 647.78,338.39" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-2" class="polygon" points=" 598.57,364.55 599.45,378.74 647.33,380.51 646.89,364.55" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-3" class="polygon" points=" 599.90,388.49 600.34,401.79 646.45,404.45 647.33,389.82" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-4" class="polygon" points=" 599.90,410.66 600.78,423.52 649.55,426.18 648.22,409.77" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-5" class="polygon" points=" 599.01,433.72 600.34,444.80 648.66,447.46 648.22,432.83" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-6" class="polygon" points=" 667.73,338.84 668.61,355.24 714.72,356.13 716.05,337.06" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-7" class="polygon" points=" 668.61,364.55 668.17,380.07 716.94,381.84 717.38,365.44" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-8" class="polygon" points=" 669.94,387.61 669.50,401.79 717.38,403.57 717.38,388.05" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-9" class="polygon" points=" 669.50,408.00 668.61,426.62 716.94,424.85 714.72,410.66 673.93,408.00" transform="translate(0,0) scale(1,1)"></polygon>
-                            <polygon id="polygon-10" class="polygon" points=" 668.61,431.94 669.06,445.69 715.61,447.46 715.61,434.16" transform="translate(0,0) scale(1,1)"></polygon>
-                        </g>
-                        <g id="board"></g>
-                    </svg>
                 </div>
             </div>
 
         </div>
     </div>
-
-    <div class="col-md-4">
-        <div class="row">
-            <iframe src="<c:url value="/poDashboard.jsp" />" frameborder="0" width="100%" height="700"></iframe>
+    <%--
+        <div class="col-md-4">
+            <div class="row">
+                <iframe src="<c:url value="/pages/poDashboard_1.jsp" />" frameborder="0" width="100%" height="700"></iframe>
+            </div>
         </div>
-    </div>
-
+    --%>
 

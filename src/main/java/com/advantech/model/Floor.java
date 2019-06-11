@@ -33,6 +33,12 @@ public class Floor implements java.io.Serializable {
     @JsonIgnore
     private Set<StorageSpace> storageSpaces = new HashSet<>(0);
 
+    @JsonIgnore
+    private Set<Line> lines = new HashSet<>(0);
+
+    @JsonIgnore
+    private Set<LineSchedule> lineSchedules = new HashSet<>(0);
+
     public Floor() {
     }
 
@@ -87,6 +93,28 @@ public class Floor implements java.io.Serializable {
 
     public void setStorageSpaces(Set<StorageSpace> storageSpaces) {
         this.storageSpaces = storageSpaces;
+    }
+
+    @JsonIgnore
+    @JsonIgnoreProperties
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "floor")
+    public Set<Line> getLines() {
+        return lines;
+    }
+
+    public void setLines(Set<Line> lines) {
+        this.lines = lines;
+    }
+
+    @JsonIgnore
+    @JsonIgnoreProperties
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "floor")
+    public Set<LineSchedule> getLineSchedules() {
+        return lineSchedules;
+    }
+
+    public void setLineSchedules(Set<LineSchedule> lineSchedules) {
+        this.lineSchedules = lineSchedules;
     }
 
 }
