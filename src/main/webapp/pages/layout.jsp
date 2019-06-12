@@ -14,15 +14,12 @@
 <sec:authorize access="hasRole('OPER')"  var="isOper" />
 <sec:authorize access="hasRole('ADMIN')"  var="isAdmin" />
 
-<c:if test="${param.floor_id == null}">
-    <c:redirect url="" />
-</c:if>
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
         <meta name="description" content="">
         <meta name="author" content="">
         <link rel="icon" href="../../favicon.ico">
@@ -113,13 +110,14 @@
                 </div>
 
                 <div class="sidebar-header">
-                    <h3>${initParam.pageTitle}</h3>
+                    <h3>拉備料儲區</h3>
+                    <h3>定位系統</h3>
                 </div>
 
                 <ul class="list-unstyled components">
-                    <p>Dummy Heading</p>
+                    <!--<p>Dummy Heading</p>-->
                     <li class="active">
-                        <a href="layout.jsp?content=dashboard_2&floor_id=2#">Home</a>
+                        <a href="layout.jsp?content=dashboard_2#">拉料</a>
                         <!--<a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>-->
                         <!--                        <ul class="collapse list-unstyled" id="homeSubmenu">
                                                     <li>
@@ -134,14 +132,17 @@
                                                 </ul>-->
                     </li>
                     <li>
-                        <a href="<c:url value="layout.jsp?content=poDashboard&floor_id=2#" />">排程看板</a>
-                        <a href="#pageSubmenu">Pages</a>
+                        <a href="<c:url value="layout.jsp?content=poDashboard#" />">備料</a>
+                        <!--<a href="#pageSubmenu">Pages</a>-->
                     </li>
-                    <li>
+<!--                    <li>
                         <a href="#">Portfolio</a>
                     </li>
                     <li>
                         <a href="#">Contact</a>
+                    </li>-->
+                    <li>
+                        <a href="<c:url value="/logout" />" class="text-danger">登出</a>
                     </li>
                 </ul>
             </nav>
@@ -184,9 +185,9 @@
                     </div>
                 </nav>
                 <div class="container-fluid">
-                    <div class="header row">
+<!--                    <div class="header row">
                         <h3 class="text-muted">WS Test Page Client</h3>
-                    </div>
+                    </div>-->
                     <div class="row">
                         <c:catch var="e">
                             <c:import url="${param.content}.jsp" />

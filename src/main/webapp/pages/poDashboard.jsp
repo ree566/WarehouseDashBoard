@@ -69,12 +69,11 @@
 <script src="<c:url value="/libs/CellEdit/dataTables.cellEdit.js" />"></script>
 
 <script>
-    var table, table2;
     $(function () {
         $.fn.dataTable.ext.errMode = 'none';
 
-        table = $('#favourable'), table2 = $('#favourable2');
-        initTable(table);
+        var table;
+        initTable();
 //        initTable(table2);
 
         $('#favourable tbody').on('click', 'tr', function () {
@@ -87,9 +86,9 @@
         });
 
 
-        var ws;
-        var hostname = window.location.host;//Get the host ipaddress to link to the server.
         function connectToServer() {
+            var ws;
+            var hostname = window.location.host;//Get the host ipaddress to link to the server.
 
             try {
                 ws = new WebSocket("ws://" + hostname + "/WarehouseDashBoard/myHandler");
@@ -102,7 +101,7 @@
                     d = d.replace(/\"/g, "");
                     console.log(d);
                     if ("ADD" == d || "REMOVE" == d) {
-                        table.ajax.reload();
+                        refreshTable();
                     }
                 };
                 ws.onclose = function () {
@@ -118,8 +117,8 @@
             ws.close();
         }
 
-        function initTable(table) {
-            table = table.DataTable({
+        function initTable() {
+            table = $('#favourable').DataTable({
                 "processing": true,
                 "serverSide": true,
                 "fixedHeader": true,
@@ -189,10 +188,8 @@
                     "sInfo": "目前記錄：_START_ 至 _END_, 總筆數：_TOTAL_"
                 },
                 "initComplete": function (settings, json) {
-
-                    //Disabled undefined index exception
-
                     connectToServer();
+                    //Disabled undefined index exception
                 },
                 "bAutoWidth": false,
                 "displayLength": -1,
@@ -206,7 +203,7 @@
                 "searchDelay": 1000,
                 "ordering": true
             });
-            
+
             table.on('error.dt', function (e, settings, techNote, message) {
                 console.log('An error has been reported by DataTables: ', message);
             });
@@ -225,7 +222,7 @@
                         dataType: "json",
                         success: function (response) {
                             alert("success");
-                            table.ajax.reload();
+                            refreshTable();
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             alert(xhr.responseText);
@@ -257,6 +254,10 @@
                     }
                 ]
             });
+        }
+
+        function refreshTable() {
+            table.ajax.reload();
         }
     });
 </script>

@@ -15,7 +15,7 @@
     
     <context-param>
         <param-name>pageTitle</param-name>
-        <param-value>倉儲看板</param-value>
+        <param-value>拉備料儲區定位系統</param-value>
     </context-param>
     
     <!--Filter chain-->

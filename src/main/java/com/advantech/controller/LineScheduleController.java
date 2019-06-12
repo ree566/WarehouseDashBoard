@@ -5,10 +5,18 @@
  */
 package com.advantech.controller;
 
+import com.advantech.helper.SecurityPropertiesUtils;
 import com.advantech.model.Floor;
 import com.advantech.model.LineSchedule;
+import com.advantech.model.LineSchedule_;
+import com.advantech.model.User;
 import com.advantech.service.LineScheduleService;
-import java.util.List;
+import java.util.Date;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
@@ -16,7 +24,6 @@ import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,8 +41,16 @@ public class LineScheduleController extends CrudController<LineSchedule> {
 
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
-    protected DataTablesOutput<LineSchedule> findAll(@Valid DataTablesInput input) throws Exception {
-        return lineScheduleService.findAll(input);
+    protected DataTablesOutput<LineSchedule> findAll(@Valid DataTablesInput input, HttpServletRequest request) throws Exception {
+        if (request.isUserInRole("ROLE_ADMIN")) {
+            return lineScheduleService.findAll(input);
+        } else {
+            User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+            return lineScheduleService.findAll(input, (Root<LineSchedule> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+                Path<Floor> entryPath = root.get(LineSchedule_.FLOOR);
+                return cb.equal(entryPath, user.getFloor());
+            });
+        }
     }
 
     @Override

@@ -35,7 +35,7 @@
         </headers>
         
         <!--Global system access setting-->
-        <intercept-url pattern="/pages/**" access="hasRole('ADMIN')" />
+        <intercept-url pattern="/pages/**" access="hasAnyRole('USER', 'ADMIN')" />
         
         <!--Controller security role setting-->
         

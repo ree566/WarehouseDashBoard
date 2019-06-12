@@ -5,6 +5,7 @@
     <head>
         <!--<META HTTP-EQUIV="REFRESH" CONTENT="10">-->
         <meta http-equiv="refresh" content="${pageContext.session.maxInactiveInterval};url="/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
         <title>${initParam.pageTitle}</title>
         <link rel="shortcut icon" href="<c:url value="/images/favicon.ico" />"/>
         <link rel="stylesheet" href="<c:url value="/libs/bootstrap/bootstrap.css" />">

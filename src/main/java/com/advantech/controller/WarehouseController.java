@@ -5,13 +5,15 @@
  */
 package com.advantech.controller;
 
+import com.advantech.helper.SecurityPropertiesUtils;
 import com.advantech.model.Floor;
 import com.advantech.model.User;
 import com.advantech.model.Warehouse;
-import com.advantech.service.FloorService;
 import com.advantech.service.UserService;
 import com.advantech.service.WarehouseService;
+import static com.google.common.base.Preconditions.checkArgument;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -35,15 +37,18 @@ public class WarehouseController extends CrudController<Warehouse> {
 
     @Autowired
     private UserService userService;
-    
-    @Autowired
-    private FloorService floorService;
-    
+ 
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
-    protected List<Warehouse> findAll(@RequestParam int floor_id) throws Exception {
-        Floor f = floorService.getOne(floor_id);
-        return warehouseService.findByFloorAndFlag(f, 0);
+    protected List<Warehouse> findAll(HttpServletRequest request) throws Exception {
+        if (request.isUserInRole("ROLE_ADMIN")) {
+            return warehouseService.findByFlag(0);
+        } else {
+            User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+            Floor f = user.getFloor();
+            checkArgument(f != null, "No storageSpace in setting, please try again.");
+            return warehouseService.findByFloorAndFlag(f, 0);
+        }
     }
 
     @Override

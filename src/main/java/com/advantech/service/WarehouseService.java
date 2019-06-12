@@ -44,6 +44,10 @@ public class WarehouseService {
     public Optional<Warehouse> findById(Integer id) {
         return repo.findById(id);
     }
+    
+    public List<Warehouse> findByFlag(int flag){
+        return repo.findByFlag(flag);
+    }
 
     public List<Warehouse> findByFloorAndFlag(Floor floor, int flag) {
         return repo.findByFloorAndFlag(floor, flag);

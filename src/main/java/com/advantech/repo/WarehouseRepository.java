@@ -20,6 +20,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WarehouseRepository extends JpaRepository<Warehouse, Integer> {
 
+    public List<Warehouse> findByFlag(int flag);
+    
     @Query("select w from Warehouse w join w.storageSpace sp where sp.floor = :floor and w.flag = :flag")
     public List<Warehouse> findByFloorAndFlag(@Param("floor") Floor floor,@Param("flag") int flag);
 }
