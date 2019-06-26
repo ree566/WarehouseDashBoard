@@ -24,9 +24,8 @@
         <meta name="author" content="">
         <link rel="icon" href="../../favicon.ico">
 
-        <title>ws-test-page</title>
         <!-- Bootstrap core CSS -->
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="<c:url value="/libs/bootstrap/bootstrap.css" />">
         <link href="https://bootstrapious.com/tutorial/sidebar/style3.css" rel="stylesheet">
 
         <!-- Custom styles for this template -->
@@ -51,10 +50,10 @@
             }
         </style>
 
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+        <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
+        <script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" ></script>
-        <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" ></script>
+        <script src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" ></script>
         <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
         <script defer src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
 
@@ -117,7 +116,7 @@
                 <ul class="list-unstyled components">
                     <!--<p>Dummy Heading</p>-->
                     <li class="active">
-                        <a href="layout.jsp?content=dashboard_2#">拉料</a>
+                        <a href="layout.jsp?content=warehouse&floor_id=1#">拉料 - 5F</a>
                         <!--<a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>-->
                         <!--                        <ul class="collapse list-unstyled" id="homeSubmenu">
                                                     <li>
@@ -132,15 +131,24 @@
                                                 </ul>-->
                     </li>
                     <li>
-                        <a href="<c:url value="layout.jsp?content=poDashboard#" />">備料</a>
+                        <a href="<c:url value="layout.jsp?content=lineSchedule&floor_id=1#" />">備料 - 5F</a>
                         <!--<a href="#pageSubmenu">Pages</a>-->
                     </li>
-<!--                    <li>
-                        <a href="#">Portfolio</a>
+                    <!--                    <li>
+                                            <a href="#">Portfolio</a>
+                                        </li>
+                                        <li>
+                                            <a href="#">Contact</a>
+                                        </li>-->
+                    <li>
+                        <a href="layout.jsp?content=warehouse&floor_id=2#">拉料 - 6F</a>
                     </li>
                     <li>
-                        <a href="#">Contact</a>
-                    </li>-->
+                        <a href="<c:url value="layout.jsp?content=lineSchedule&floor_id=2#" />">備料 - 6F</a>
+                    </li>
+                    <li>
+                        <a href="<c:url value="http://172.20.131.208/TWM3M/KB.aspx" />">物料卻校系統</a>
+                    </li>
                     <li>
                         <a href="<c:url value="/logout" />" class="text-danger">登出</a>
                     </li>
@@ -185,16 +193,16 @@
                     </div>
                 </nav>
                 <div class="container-fluid">
-<!--                    <div class="header row">
-                        <h3 class="text-muted">WS Test Page Client</h3>
-                    </div>-->
+                    <!--                    <div class="header row">
+                                            <h3 class="text-muted">WS Test Page Client</h3>
+                                        </div>-->
                     <div class="row">
                         <c:catch var="e">
                             <c:import url="${param.content}.jsp" />
-                            <%--<jsp:include page="${param.content}.jsp"/>--%>
                         </c:catch>
                         <c:if test="${!empty e}">
                             Error: page not found
+                            <%--<c:out value="${e}" />--%>
                         </c:if>
                     </div>
                 </div>

@@ -13,6 +13,13 @@ public class ServerResponseModel {
 
     private String responseMessage;
 
+    public ServerResponseModel() {
+    }
+
+    public ServerResponseModel(String string) {
+        this.responseMessage = string;
+    }
+
     public String getResponseMessage() {
         return responseMessage;
     }

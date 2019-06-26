@@ -16,6 +16,15 @@
     </websocket:handlers>
 
     <bean id="myHandler" class="com.advantech.websocket.ExampleHandler"/>
+    
+    <!-- /app:客户端向服务端 发送的前缀 -->
+    <websocket:message-broker>
+        <websocket:stomp-endpoint path="/endpointChatRoom">
+            <websocket:sockjs/>
+        </websocket:stomp-endpoint>
+        <!-- 服务端向客户端 发送的前缀 -->
+        <websocket:simple-broker prefix="/topic"/>
+    </websocket:message-broker>
 
 </beans>
 

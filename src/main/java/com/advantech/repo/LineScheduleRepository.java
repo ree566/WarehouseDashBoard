@@ -6,6 +6,7 @@
 package com.advantech.repo;
 
 import com.advantech.model.LineSchedule;
+import com.advantech.model.LineScheduleStatus;
 import com.advantech.model.RemoteSchedule;
 import java.util.Date;
 import java.util.List;
@@ -21,9 +22,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface LineScheduleRepository extends JpaRepository<LineSchedule, Integer>, DataTablesRepository<LineSchedule, Integer> {
-
-    public LineSchedule findFirstByPoAndCreateDateBetween(String po, Date sD, Date eD);
+    
+    public LineSchedule findFirstByPoAndCreateDateBetweenAndLineScheduleStatusNot(String po, Date sD, Date eD, LineScheduleStatus status);
     
     @Query(value = "{CALL usp_GetPrepareSchedule(:sD)}", nativeQuery = true)
     public List<RemoteSchedule> getPrepareSchedule(@Param("sD") Date sD);
+    
+    public List<LineSchedule> findByLineScheduleStatusAndCreateDateBetween(LineScheduleStatus status, Date sD, Date eD);
 }

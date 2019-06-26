@@ -5,7 +5,7 @@
  */
 package com.advantech.repo;
 
-import com.advantech.model.StorageSpace;
+import com.advantech.model.Floor;
 import com.advantech.model.StorageSpaceGroup;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,8 +16,9 @@ import org.springframework.stereotype.Repository;
  * @author Wei.Cheng
  */
 @Repository
-public interface StorageSpaceRepository extends JpaRepository<StorageSpace, Integer> {
+public interface StorageSpaceGroupRepository extends JpaRepository<StorageSpaceGroup, Integer> {
+
+    public List<StorageSpaceGroup> findAllByOrderByName();
     
-    public List<StorageSpace> findByStorageSpaceGroupOrderByName(StorageSpaceGroup group);
-    
+    public List<StorageSpaceGroup> findByFloorOrderByName(Floor floor);
 }

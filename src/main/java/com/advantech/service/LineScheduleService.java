@@ -7,9 +7,9 @@ package com.advantech.service;
 
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
+import com.advantech.model.StorageSpace;
 import com.advantech.repo.LineScheduleRepository;
 import static com.google.common.base.Preconditions.checkState;
-import java.util.Date;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
@@ -44,25 +44,26 @@ public class LineScheduleService {
         return repo.getOne(id);
     }
 
-    public LineSchedule findFirstByPoAndCreateDateBetween(String po, Date sD, Date eD) {
-        return repo.findFirstByPoAndCreateDateBetween(po, sD, eD);
-    }
-
     public <S extends LineSchedule> S save(S s) {
         LineScheduleStatus lineOperated = stateService.getOne(3);
         LineScheduleStatus onBoard = stateService.getOne(4);
-        checkState(s.getLineScheduleStatus().getId() != onBoard.getId(), "This record is already onboard");
-        s.setLineScheduleStatus(lineOperated);
+        if (s.getLineScheduleStatus().getId() != onBoard.getId()) {
+            s.setLineScheduleStatus(lineOperated);
+        }
         return repo.save(s);
     }
 
-    public void updateStatus(String po, LineScheduleStatus status) {
-        DateTime sD = new DateTime().withHourOfDay(0);
-        DateTime eD = new DateTime().withHourOfDay(23);
-        LineSchedule schedule = repo.findFirstByPoAndCreateDateBetween(po, sD.toDate(), eD.toDate());
-//        checkState(schedule != null, "Can't find po " + po + " in schecule");
+    public void updateStatus(String po, LineScheduleStatus status, StorageSpace storageSpace) {
+        DateTime sD = new DateTime().plusDays(1).withTime(0, 0, 0, 0);
+        DateTime eD = new DateTime().plusDays(1).withTime(23, 59, 59, 0);
+        LineScheduleStatus onBoard = stateService.getOne(4);
+        LineSchedule schedule = repo.findFirstByPoAndCreateDateBetweenAndLineScheduleStatusNot(po, sD.toDate(), eD.toDate(), onBoard);
         if (schedule != null) {
+            checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
             schedule.setLineScheduleStatus(status);
+            if (status.getId() != 4) {
+                schedule.setStorageSpace(storageSpace);
+            }
             repo.save(schedule);
         }
     }

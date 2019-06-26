@@ -5,22 +5,35 @@
         http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
     
     <!--job1 setting-->
-<!--    <bean name="SendReport-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject" ref="sendReport" />
+    <bean name="Sync-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="syncData" />
         <property name="targetMethod" value="execute"/>  
         <property name="concurrent" value="false"/>
     </bean>
     
-    <bean id="SendReport-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="jobDetail" ref="SendReport-Job" />
-        <property name="cronExpression" value="0 0 15 ? * FRI *" />
-    </bean>-->
+    <bean id="Sync-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="Sync-Job" />
+        <property name="cronExpression" value="0 0 6 ? * MON-SUN *" />
+    </bean>
+    
+    <!--job2 setting-->
+    <bean name="HandleUnfinishedSchedule-Job" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="handleUnfinishedSchedule" />
+        <property name="targetMethod" value="execute"/>  
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="HandleUnfinishedSchedule-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="HandleUnfinishedSchedule-Job" />
+        <property name="cronExpression" value="0 30 22 ? * MON-SAT *" />
+    </bean>
 
     <!--schedule jobs-->
     <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <!--<ref bean="SendReport-Trig"/>-->
+                <ref bean="Sync-Trig"/>
+                <!--<ref bean="HandleUnfinishedSchedule-Trig"/>-->
             </list>
         </property>
         <property name="schedulerName">

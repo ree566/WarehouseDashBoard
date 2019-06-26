@@ -33,6 +33,7 @@ public class LineSchedule implements java.io.Serializable {
     private int quantity;
     private Line line;
     private Floor floor;
+    private StorageSpace storageSpace;
     private LineScheduleStatus lineScheduleStatus;
     private Date createDate;
 
@@ -44,6 +45,14 @@ public class LineSchedule implements java.io.Serializable {
         this.modelName = modelName;
         this.quantity = quantity;
         this.line = line;
+    }
+
+    public LineSchedule(String po, String modelName, int quantity, Floor floor, LineScheduleStatus lineScheduleStatus) {
+        this.po = po;
+        this.modelName = modelName;
+        this.quantity = quantity;
+        this.floor = floor;
+        this.lineScheduleStatus = lineScheduleStatus;
     }
 
     @Id
@@ -105,6 +114,16 @@ public class LineSchedule implements java.io.Serializable {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "storageSpace_id")
+    public StorageSpace getStorageSpace() {
+        return storageSpace;
+    }
+
+    public void setStorageSpace(StorageSpace storageSpace) {
+        this.storageSpace = storageSpace;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     public LineScheduleStatus getLineScheduleStatus() {
         return lineScheduleStatus;
@@ -115,10 +134,10 @@ public class LineSchedule implements java.io.Serializable {
     }
 
     @CreationTimestamp
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'", iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'", timezone = "GMT+8")
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "create_date", length = 23, updatable = false)
+    @Column(name = "create_date", length = 23)
     public Date getCreateDate() {
         return createDate;
     }

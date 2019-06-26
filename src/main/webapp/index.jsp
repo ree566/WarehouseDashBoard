@@ -19,7 +19,7 @@
         <title>ws-test-page</title>
 
         <script>
-          
+
         </script>
     </head>
 
@@ -31,7 +31,14 @@
             </div>
 
             <div>
-                <a href="<c:url value="/pages/layout.jsp?content=dashboard_2&floor_id=2" />">首頁</a>
+                <ul>
+                    <li>
+                        <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=1#" />">5F首頁</a>
+                    </li>
+                    <li>
+                        <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=2#" />">6F首頁</a>
+                    </li>
+                </ul>
             </div>
 
         </div>

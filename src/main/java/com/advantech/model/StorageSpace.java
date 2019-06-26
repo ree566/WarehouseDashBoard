@@ -27,10 +27,13 @@ public class StorageSpace implements java.io.Serializable {
 
     private int id;
     private String name;
-    private Floor floor;
+    private StorageSpaceGroup storageSpaceGroup;
 
     @JsonIgnore
     private Set<Warehouse> warehouses = new HashSet<Warehouse>(0);
+
+    @JsonIgnore
+    private Set<LineSchedule> lineSchedules = new HashSet<LineSchedule>(0);
 
     public StorageSpace() {
     }
@@ -38,11 +41,6 @@ public class StorageSpace implements java.io.Serializable {
     public StorageSpace(int id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public StorageSpace(String name, Floor floor) {
-        this.name = name;
-        this.floor = floor;
     }
 
     @Id
@@ -66,13 +64,13 @@ public class StorageSpace implements java.io.Serializable {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "floor_id")
-    public Floor getFloor() {
-        return floor;
+    @JoinColumn(name = "group_id")
+    public StorageSpaceGroup getStorageSpaceGroup() {
+        return storageSpaceGroup;
     }
 
-    public void setFloor(Floor floor) {
-        this.floor = floor;
+    public void setStorageSpaceGroup(StorageSpaceGroup storageSpaceGroup) {
+        this.storageSpaceGroup = storageSpaceGroup;
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "storageSpace")
@@ -82,6 +80,15 @@ public class StorageSpace implements java.io.Serializable {
 
     public void setWarehouses(Set<Warehouse> warehouses) {
         this.warehouses = warehouses;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "storageSpace")
+    public Set<LineSchedule> getLineSchedules() {
+        return lineSchedules;
+    }
+
+    public void setLineSchedules(Set<LineSchedule> lineSchedules) {
+        this.lineSchedules = lineSchedules;
     }
 
 }

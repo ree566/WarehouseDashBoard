@@ -11,13 +11,21 @@ package com.advantech.websocket;
  */
 public class ChatClientModel {
 
-    private String Clientname;
+    private String name;
 
-    public String getClientname() {
-        return Clientname;
+    public ChatClientModel() {
     }
 
-    public void setClientname(String clientname) {
-        Clientname = clientname;
+    public ChatClientModel(String name) {
+        this.name = name;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

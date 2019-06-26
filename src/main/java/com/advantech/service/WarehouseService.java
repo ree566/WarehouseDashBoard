@@ -44,8 +44,8 @@ public class WarehouseService {
     public Optional<Warehouse> findById(Integer id) {
         return repo.findById(id);
     }
-    
-    public List<Warehouse> findByFlag(int flag){
+
+    public List<Warehouse> findByFlag(int flag) {
         return repo.findByFlag(flag);
     }
 
@@ -73,7 +73,7 @@ public class WarehouseService {
                     throw new IllegalArgumentException();
             }
         }
-        this.lineScheduleService.updateStatus(w.getPo(), status);
+        this.lineScheduleService.updateStatus(w.getPo(), status, w.getStorageSpace());
     }
 
 }

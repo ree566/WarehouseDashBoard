@@ -9,6 +9,7 @@ import com.advantech.model.Floor;
 import com.advantech.model.Line;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
+import com.advantech.model.RemoteSchedule;
 import com.advantech.model.StorageSpace;
 import com.advantech.model.User;
 import com.advantech.model.UserNotification;
@@ -23,6 +24,8 @@ import com.advantech.repo.UserNotificationRepository;
 import com.advantech.repo.UserRepository;
 import com.advantech.repo.WarehouseEventRepository;
 import com.advantech.repo.WarehouseRepository;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.joda.time.DateTime;
 import static org.junit.Assert.*;
@@ -63,12 +66,15 @@ public class TestRepository {
 
     @Autowired
     private WarehouseEventRepository warehouseEventRepo;
-    
+
     @Autowired
     private LineRepository lineRepo;
-    
+
     @Autowired
     private LineScheduleRepository lineScheduleRepo;
+
+    @Autowired
+    private LineScheduleStatusRepository statusRepo;
 
 //    @Test
     @Transactional
@@ -103,18 +109,16 @@ public class TestRepository {
         }
     }
 
-//    @Test
+    @Test
     @Transactional
     @Rollback(true)
     public void testStorageSpace() {
-        Floor f = floorRepo.findById(4).get();
+        StorageSpace s = storageRepo.getOne(1);
 
-        List<StorageSpace> l = storageRepo.findByFloor(f);
-
-        assertEquals(8, l.size());
+        HibernateObjectPrinter.print(s.getStorageSpaceGroup().getName());
 
     }
-    
+
 //    @Test
     @Transactional
     @Rollback(true)
@@ -126,7 +130,7 @@ public class TestRepository {
         assertEquals(2, l.size());
 
     }
-    
+
 //    @Test
     @Transactional
     @Rollback(false)
@@ -134,16 +138,16 @@ public class TestRepository {
         Line line = this.lineRepo.getOne(1);
 
         assertNotNull(line);
-        
+
         LineSchedule sche = new LineSchedule("TEST", "TEST", 12, line);
 
         this.lineScheduleRepo.save(sche);
 
     }
-    
+
     @Autowired
     private LineScheduleStatusRepository lineScheduleStatusRepo;
-    
+
 //    @Test
     @Transactional
     @Rollback(false)
@@ -151,25 +155,73 @@ public class TestRepository {
         LineScheduleStatus lineStatus = this.lineScheduleStatusRepo.getOne(1);
 
         assertNotNull(lineStatus);
-        
+
         LineSchedule sche = this.lineScheduleRepo.getOne(3);
-        
+
         assertNotNull(sche);
-        
+
         sche.setLineScheduleStatus(lineStatus);
 
         this.lineScheduleRepo.save(sche);
 
     }
-    
-    @Test
+
+//    @Test
     @Transactional
     @Rollback(true)
     public void testLineScheduleStatus2() {
         DateTime sD = new DateTime().withHourOfDay(0);
         DateTime eD = new DateTime().withHourOfDay(23);
-        LineSchedule schedule = this.lineScheduleRepo.findFirstByPoAndCreateDateBetween("968SPUDSC0", sD.toDate(), eD.toDate());
+        LineScheduleStatus onBoard = statusRepo.getOne(3);
+        LineSchedule schedule = this.lineScheduleRepo
+                .findFirstByPoAndCreateDateBetweenAndLineScheduleStatusNot("PCJ6112ZA", sD.toDate(), eD.toDate(), onBoard);
         HibernateObjectPrinter.print(schedule);
+    }
+
+//    @Test
+    @Transactional
+    @Rollback(true)
+    public void testAutoSetLineScheduleStatus() {
+        List<Floor> floors = floorRepo.findAll();
+        LineScheduleStatus defaultStatus = statusRepo.getOne(1);
+        LineScheduleStatus onboard = statusRepo.getOne(4);
+
+        DateTime tomorrow = new DateTime().plusDays(1).withTime(0, 0, 0, 0);
+
+        List<RemoteSchedule> remoteSchedules = lineScheduleRepo.getPrepareSchedule(tomorrow.toDate());
+        List<LineSchedule> lineSchedules = new ArrayList();
+
+        remoteSchedules.forEach(s -> {
+            String floorName = s.getFloorName();
+            if ("M2".equals(floorName)) {
+                floorName = "7F";
+            } else {
+                floorName = null;
+            }
+            final String floor = floorName;
+            Floor filterFloor = floors.stream().filter(f -> f.getName().equals(floor)).findFirst().orElse(null);
+            if (filterFloor != null) {
+                LineSchedule sche = new LineSchedule(s.getPo(), s.getModelName(), s.getQuantity(), filterFloor, defaultStatus);
+                sche.setCreateDate(new Date());
+                lineSchedules.add(sche);
+            }
+        });
+
+        //When schedule's po is already in warehouse, set status to complete.
+        floors.forEach(f -> {
+            List<Warehouse> warehouses = warehouseRepo.findByFloorAndFlag(f, 0);
+            warehouses.forEach(w -> {
+                LineSchedule s = lineSchedules.stream()
+                        .filter(ls -> ls.getFloor().equals(f) && ls.getPo().equals(w.getPo()))
+                        .findFirst()
+                        .orElse(null);
+                if (s != null) {
+                    s.setLineScheduleStatus(onboard);
+                }
+            });
+        });
+
+        HibernateObjectPrinter.print(lineSchedules);
     }
 
 }

@@ -20,8 +20,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WarehouseRepository extends JpaRepository<Warehouse, Integer> {
 
+    /**
+        Flag 0: in warehouse wait for pull out
+        Flag 1: Already pull out
+     * @param flag
+     * @return 
+    */
     public List<Warehouse> findByFlag(int flag);
-    
-    @Query("select w from Warehouse w join w.storageSpace sp where sp.floor = :floor and w.flag = :flag")
-    public List<Warehouse> findByFloorAndFlag(@Param("floor") Floor floor,@Param("flag") int flag);
+
+    @Query("select w from Warehouse w join w.storageSpace sp join sp.storageSpaceGroup g where g.floor = :floor and w.flag = :flag")
+    public List<Warehouse> findByFloorAndFlag(@Param("floor") Floor floor, @Param("flag") int flag);
 }

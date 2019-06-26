@@ -6,9 +6,8 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<title>poDashboard</title>
-<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet">
+<title>${initParam.pageTitle}</title>
+<link href="<c:url value="/libs/datatables.net-dt/jquery.dataTables.css" />" rel="stylesheet">
 <link href="https://cdn.datatables.net/fixedheader/3.1.5/css/fixedHeader.dataTables.min.css" rel="stylesheet">
 
 <style>
@@ -61,9 +60,10 @@
 
 </style>
 
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
+<script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sortable/0.9.13/jquery-sortable-min.js"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="<c:url value="/libs/datatables.net/jquery.dataTables.js" />"></script>
 <script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
 <script src="<c:url value="/libs/spring-friendly/jquery.spring-friendly.js" />"></script>
 <script src="<c:url value="/libs/CellEdit/dataTables.cellEdit.js" />"></script>
@@ -71,6 +71,8 @@
 <script>
     $(function () {
         $.fn.dataTable.ext.errMode = 'none';
+
+        var floor_id = '${param.floor_id}';
 
         var table;
         initTable();
@@ -126,18 +128,24 @@
                 "ajax": {
                     "url": "<c:url value="/LineScheduleController/findAll" />",
                     "type": "GET",
+                    "data": {
+                        floor_id: floor_id
+                    },
                     "dataSrc": function (json) {
                         return JSOG.decode(json.data);
                     }
                 },
                 "columns": [
-                    {data: "id", title: "id"},
+                    {data: "id", title: "id", visible: false},
                     {data: "po", title: "工單"},
                     {data: "modelName", title: "機種"},
                     {data: "quantity", title: "數量"},
                     {data: "line.name", title: "線別"},
                     {data: "quantity", title: "治具"},
-                    {data: "lineScheduleStatus.name", title: "狀態"}
+                    {data: "lineScheduleStatus.name", title: "狀態"},
+                    {data: "storageSpace.name", title: "位置"},
+                    {data: "floor.name", title: "樓層"},
+                    {data: "createDate", title: "上線日"}
                 ],
                 "columnDefs": [
                     {
@@ -150,6 +158,14 @@
 //                                    "<option>LC</option><option>LD</option>" +
 //                                    "</select>";
                             return data == null ? "N/A" : data;
+                        }
+                    },
+                    {
+                        "type": "html",
+                        "targets": [7],
+                        'render': function (data, type, full, meta) {
+                            var content = "<a class='storage-faq' data-toggle=''><span class='fa fa-question-sign' title='Location'></span></a><div id='po_content_' class='po_content form-inline'></div>";
+                            return data == null ? "N/A" : (data + content);
                         }
                     },
                     {
@@ -188,6 +204,12 @@
                     "sInfo": "目前記錄：_START_ 至 _END_, 總筆數：_TOTAL_"
                 },
                 "initComplete": function (settings, json) {
+                    $('body').on('click', '.storage-faq, #dashboard label', function () {
+//                        var labelName = $(this).attr("data-toggle");
+//                        var target = $("#imagemodal #polygon-" + labelName);
+//                        highlightSelectArea(target);
+                        $('#imagemodal').modal('show');
+                    });
                     connectToServer();
                     //Disabled undefined index exception
                 },
@@ -208,12 +230,15 @@
                 console.log('An error has been reported by DataTables: ', message);
             });
 
+            var lineOptions = getLineOption();
+            var floorOptions = getFloorOption();
+
             table.MakeCellsEditable({
                 "onUpdate": function (updatedCell, updatedRow, oldValue) {
                     var value = updatedCell.data();
                     var data = updatedRow.data();
-                    delete data.createDate;
                     delete data.line.name;
+                    delete data.floor.name;
                     data.line.id = value;
                     $.ajax({
                         type: "POST",
@@ -230,7 +255,7 @@
                     });
                 },
                 "inputCss": 'form-control',
-                "columns": [4],
+                "columns": [4, 8],
                 "allowNulls": {
                     "columns": [1, 2, 3, 4, 5],
                     "errorClass": 'error'
@@ -243,14 +268,12 @@
                     {
                         "column": 4,
                         "type": "list",
-                        "options": [
-                            {"value": "", "display": "N/A"},
-                            {"value": "1", "display": "LD"},
-                            {"value": "2", "display": "LB"},
-                            {"value": "3", "display": "LA"},
-                            {"value": "4", "display": "LF"},
-                            {"value": "5", "display": "LG"}
-                        ]
+                        "options": lineOptions
+                    },
+                    {
+                        "column": 8,
+                        "type": "list",
+                        "options": floorOptions
                     }
                 ]
             });
@@ -259,8 +282,67 @@
         function refreshTable() {
             table.ajax.reload();
         }
+
+        function getLineOption() {
+            var result = [];
+            $.ajax({
+                type: 'GET',
+                url: "<c:url value="/LineController/find" />",
+                data: {
+                    id: floor_id
+                },
+                async: false,
+                success: function (response) {
+                    var arr = response;
+                    result.push({"value": "", "display": "N/A"});
+
+                    for (var i = 0; i < arr.length; i++) {
+                        var obj = arr[i];
+                        result.push({"value": obj.id, "display": obj.name});
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.responseText);
+                }
+            });
+            return result;
+        }
+
+        function getFloorOption() {
+            var result = [];
+            $.ajax({
+                type: 'GET',
+                url: "<c:url value="/FloorController/findAll" />",
+                async: false,
+                success: function (response) {
+                    var arr = response;
+                    result.push({"value": "", "display": "N/A"});
+
+                    for (var i = 0; i < arr.length; i++) {
+                        var obj = arr[i];
+                        result.push({"value": obj.id, "display": obj.name});
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.responseText);
+                }
+            });
+            return result;
+        }
     });
 </script>
+
+<div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">              
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <c:import url="/images/svg_areaMap_${param.floor_id}f.jsp" />
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="container-fluid">
     <div class="row">

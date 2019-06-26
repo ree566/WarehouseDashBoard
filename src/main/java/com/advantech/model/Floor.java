@@ -31,7 +31,7 @@ public class Floor implements java.io.Serializable {
     private Set<User> users = new HashSet<>(0);
 
     @JsonIgnore
-    private Set<StorageSpace> storageSpaces = new HashSet<>(0);
+    private Set<StorageSpaceGroup> storageSpaceGroups = new HashSet<>(0);
 
     @JsonIgnore
     private Set<Line> lines = new HashSet<>(0);
@@ -87,12 +87,12 @@ public class Floor implements java.io.Serializable {
     @JsonIgnore
     @JsonIgnoreProperties
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "floor")
-    public Set<StorageSpace> getStorageSpaces() {
-        return storageSpaces;
+    public Set<StorageSpaceGroup> getStorageSpaceGroups() {
+        return storageSpaceGroups;
     }
 
-    public void setStorageSpaces(Set<StorageSpace> storageSpaces) {
-        this.storageSpaces = storageSpaces;
+    public void setStorageSpaceGroups(Set<StorageSpaceGroup> storageSpaces) {
+        this.storageSpaceGroups = storageSpaces;
     }
 
     @JsonIgnore

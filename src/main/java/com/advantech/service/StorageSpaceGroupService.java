@@ -5,11 +5,10 @@
  */
 package com.advantech.service;
 
-import com.advantech.model.StorageSpace;
+import com.advantech.model.Floor;
 import com.advantech.model.StorageSpaceGroup;
-import com.advantech.repo.StorageSpaceRepository;
+import com.advantech.repo.StorageSpaceGroupRepository;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,21 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-public class StorageSpaceService {
+public class StorageSpaceGroupService {
 
     @Autowired
-    private StorageSpaceRepository repo;
+    private StorageSpaceGroupRepository repo;
 
-    public List<StorageSpace> findAll() {
-        return repo.findAll();
+    public List<StorageSpaceGroup> findAllByOrderByName() {
+        return repo.findAllByOrderByName();
     }
 
-    public Optional<StorageSpace> findById(Integer id) {
-        return repo.findById(id);
-    }
-
-    public List<StorageSpace> findByStorageSpaceGroupOrderByName(StorageSpaceGroup group) {
-        return repo.findByStorageSpaceGroupOrderByName(group);
+    public List<StorageSpaceGroup> findByFloorOrderByName(Floor floor) {
+        return repo.findByFloorOrderByName(floor);
     }
 
 }
