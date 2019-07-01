@@ -1,0 +1,10 @@
+#for tests only !
+#Fri Jun 28 13:25:21 CST 2019
+jco.client.lang=ZF
+jco.destination.peak_limit=10
+jco.client.client=168
+jco.client.passwd=MESMES
+jco.client.user=MES.ACL
+jco.client.sysnr=06
+jco.destination.pool_capacity=3
+jco.client.ashost=172.20.1.63

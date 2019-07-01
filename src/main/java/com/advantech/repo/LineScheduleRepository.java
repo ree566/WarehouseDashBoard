@@ -28,5 +28,9 @@ public interface LineScheduleRepository extends JpaRepository<LineSchedule, Inte
     @Query(value = "{CALL usp_GetPrepareSchedule(:sD)}", nativeQuery = true)
     public List<RemoteSchedule> getPrepareSchedule(@Param("sD") Date sD);
     
+    public List<LineSchedule> findByCreateDateBetween(Date sD, Date eD);
+    
     public List<LineSchedule> findByLineScheduleStatusAndCreateDateBetween(LineScheduleStatus status, Date sD, Date eD);
+    
+    public List<LineSchedule> findByLineScheduleStatusNotAndCreateDateBetween(LineScheduleStatus status, Date sD, Date eD);
 }

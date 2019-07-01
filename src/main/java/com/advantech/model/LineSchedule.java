@@ -36,6 +36,7 @@ public class LineSchedule implements java.io.Serializable {
     private StorageSpace storageSpace;
     private LineScheduleStatus lineScheduleStatus;
     private Date createDate;
+    private String remark;
 
     public LineSchedule() {
     }
@@ -133,7 +134,6 @@ public class LineSchedule implements java.io.Serializable {
         this.lineScheduleStatus = lineScheduleStatus;
     }
 
-    @CreationTimestamp
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'", iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'", timezone = "GMT+8")
     @Temporal(TemporalType.TIMESTAMP)
@@ -144,6 +144,15 @@ public class LineSchedule implements java.io.Serializable {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    @Column(name = "remark")
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
 }

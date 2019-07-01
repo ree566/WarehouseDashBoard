@@ -5,7 +5,7 @@
  */
 package com.advantech.job;
 
-import com.advantech.helper.HibernateObjectPrinter;
+import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.Floor;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
@@ -16,9 +16,9 @@ import com.advantech.repo.LineScheduleRepository;
 import com.advantech.repo.LineScheduleStatusRepository;
 import com.advantech.repo.WarehouseRepository;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
- * @author Wei.Cheng Sync back excel's data from "MFG-Server (MFG-OAPC-019B)"
- * Every day ※Only sync current years data
  */
 @Component
 public class SyncData {
@@ -47,19 +45,24 @@ public class SyncData {
     @Autowired
     private FloorRepository floorRepo;
 
+    @Autowired
+    private WorkDateUtils workDateUtils;
+
     @Transactional
     public void execute() {
-        DateTime tomorrow = new DateTime().plusDays(1).withTime(0, 0, 0, 0);
-        if(isScheduleExists(tomorrow)){
+
+        DateTime nextDay = workDateUtils.findNextDay();
+
+        if (isScheduleExists(nextDay)) {
             logger.info("Schedule in spec date is already exist.");
             return;
         }
-        
+
         List<Floor> floors = floorRepo.findAll();
         LineScheduleStatus defaultStatus = statusRepo.getOne(1);
         LineScheduleStatus onboard = statusRepo.getOne(4);
 
-        List<RemoteSchedule> remoteSchedules = lineScheduleRepo.getPrepareSchedule(tomorrow.toDate());
+        List<RemoteSchedule> remoteSchedules = lineScheduleRepo.getPrepareSchedule(nextDay.toDate());
         List<LineSchedule> lineSchedules = new ArrayList();
 
         remoteSchedules.forEach(s -> {
@@ -84,7 +87,7 @@ public class SyncData {
                         .filter(ls -> ls.getFloor().equals(f) && ls.getPo().equals(w.getPo()))
                         .findFirst()
                         .orElse(null);
-                if(s != null){
+                if (s != null) {
                     s.setLineScheduleStatus(onboard);
                 }
             });
@@ -94,9 +97,11 @@ public class SyncData {
 
         lineScheduleRepo.saveAll(lineSchedules);
     }
-    
-    private boolean isScheduleExists(DateTime d){
-        List l = lineScheduleRepo.getPrepareSchedule(d.toDate());
+
+    private boolean isScheduleExists(DateTime d) {
+        DateTime d1 = new DateTime(d).withTime(0, 0, 0, 0);
+        DateTime d2 = new DateTime(d).withTime(23, 0, 0, 0);
+        List l = lineScheduleRepo.findByCreateDateBetween(d1.toDate(), d2.toDate());
         return !l.isEmpty();
     }
 

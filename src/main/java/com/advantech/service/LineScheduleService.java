@@ -5,6 +5,7 @@
  */
 package com.advantech.service;
 
+import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
 import com.advantech.model.StorageSpace;
@@ -31,6 +32,9 @@ public class LineScheduleService {
 
     @Autowired
     private LineScheduleStatusService stateService;
+    
+    @Autowired
+    private WorkDateUtils workDateUtils;
 
     public DataTablesOutput<LineSchedule> findAll(DataTablesInput dti) {
         return repo.findAll(dti);
@@ -54,8 +58,9 @@ public class LineScheduleService {
     }
 
     public void updateStatus(String po, LineScheduleStatus status, StorageSpace storageSpace) {
-        DateTime sD = new DateTime().plusDays(1).withTime(0, 0, 0, 0);
-        DateTime eD = new DateTime().plusDays(1).withTime(23, 59, 59, 0);
+        DateTime nextDay = workDateUtils.findNextDay();
+        DateTime sD = new DateTime(nextDay).withTime(0, 0, 0, 0);
+        DateTime eD = new DateTime(nextDay).withTime(23, 59, 59, 0);
         LineScheduleStatus onBoard = stateService.getOne(4);
         LineSchedule schedule = repo.findFirstByPoAndCreateDateBetweenAndLineScheduleStatusNot(po, sD.toDate(), eD.toDate(), onBoard);
         if (schedule != null) {

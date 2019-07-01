@@ -40,23 +40,20 @@ public class StorageSpaceGroupController {
     protected List<StorageSpaceGroup> findAll(
             @RequestParam(required = false) Integer floor_id,
             HttpServletRequest request) throws Exception {
-        if (request.isUserInRole("ROLE_ADMIN")) {
-            return storageSpaceGroupService.findAllByOrderByName();
-        } else {
-            /*
+        /*
                 Re-assign default user's sitefloor location 
                 when request param not contains "floor_id"
-            */
-            Floor f;
-            if (floor_id != null) {
-                User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-                f = user.getFloor();
-            } else {
-                f = floorService.getOne(floor_id);
-            }
-            checkArgument(f != null, "No storageSpace in setting, please try again.");
-            return storageSpaceGroupService.findByFloorOrderByName(f);
+         */
+        Floor f;
+        if (floor_id == null) {
+            User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+            f = user.getFloor();
+        } else {
+            f = floorService.getOne(floor_id);
         }
+        checkArgument(f != null, "No storageSpace in setting, please try again.");
+        return storageSpaceGroupService.findByFloorOrderByName(f);
+
     }
 
 }

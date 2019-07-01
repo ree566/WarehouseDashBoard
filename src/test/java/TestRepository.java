@@ -223,5 +223,19 @@ public class TestRepository {
 
         HibernateObjectPrinter.print(lineSchedules);
     }
+    
+    @Test
+    @Transactional
+    @Rollback(true)
+    public void testfindByLineScheduleStatusNotAndCreateDateBetween(){
+        LineScheduleStatus onboard = statusRepo.getOne(4);
+        DateTime sD = new DateTime().withHourOfDay(0).withMinuteOfHour(0);
+        DateTime eD = new DateTime().withHourOfDay(23).withMinuteOfHour(59);
+
+        //Find un-finished po schedules
+        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndCreateDateBetween(onboard, sD.toDate(), eD.toDate());
+
+        HibernateObjectPrinter.print(lineSchedules);
+    }
 
 }

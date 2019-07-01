@@ -5,6 +5,7 @@
  */
 package com.advantech.job;
 
+import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
 import com.advantech.repo.LineScheduleRepository;
@@ -32,19 +33,25 @@ public class HandleUnfinishedSchedule {
 
     @Autowired
     private LineScheduleStatusRepository statusRepo;
+    
+    @Autowired
+    private WorkDateUtils workDateUtils;
 
     @Transactional
     public void execute() {
+        
+        DateTime nextDay = workDateUtils.findNextDay();
 
-        LineScheduleStatus defaultStatus = statusRepo.getOne(1);
+        //Find today unfinished job and set date to nextDay
+        LineScheduleStatus onboard = statusRepo.getOne(4);
         DateTime sD = new DateTime().withHourOfDay(0).withMinuteOfHour(0);
         DateTime eD = new DateTime().withHourOfDay(23).withMinuteOfHour(59);
 
         //Find un-finished po schedules
-        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusAndCreateDateBetween(defaultStatus, sD.toDate(), eD.toDate());
+        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndCreateDateBetween(onboard, sD.toDate(), eD.toDate());
 
         lineSchedules.forEach(s -> {
-            s.setCreateDate(new DateTime(s.getCreateDate()).plusDays(1).toDate());
+            s.setCreateDate(nextDay.toDate());
         });
 
         lineScheduleRepo.saveAll(lineSchedules);

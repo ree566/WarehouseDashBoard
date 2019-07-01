@@ -6,6 +6,7 @@
 package com.advantech.controller;
 
 import com.advantech.helper.SecurityPropertiesUtils;
+import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.Floor;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineSchedule_;
@@ -44,6 +45,9 @@ public class LineScheduleController extends CrudController<LineSchedule> {
 
     @Autowired
     private FloorService floorService;
+    
+    @Autowired
+    private WorkDateUtils workDateUtils;
 
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
@@ -51,26 +55,21 @@ public class LineScheduleController extends CrudController<LineSchedule> {
             @Valid DataTablesInput input,
             @RequestParam(required = false) Integer floor_id,
             HttpServletRequest request) throws Exception {
-        DateTime tomorrow = new DateTime().plusDays(1).withTime(0, 0, 0, 0);
-        if (request.isUserInRole("ROLE_ADMIN")) {
-            return lineScheduleService.findAll(input, (Root<LineSchedule> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-                Path<Date> datePath = root.get(LineSchedule_.CREATE_DATE);
-                return cb.equal(datePath, tomorrow.toDate());
-            });
+        
+        DateTime nextDay = workDateUtils.findNextDay();
+        Floor f;
+        if (floor_id == null) {
+            User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+            f = user.getFloor();
         } else {
-            Floor f;
-            if (floor_id == null) {
-                User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-                f = user.getFloor();
-            } else {
-                f = floorService.getOne(floor_id);
-            }
-            return lineScheduleService.findAll(input, (Root<LineSchedule> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-                Path<Floor> entryPath = root.get(LineSchedule_.FLOOR);
-                Path<Date> datePath = root.get(LineSchedule_.CREATE_DATE);
-                return cb.and(cb.equal(entryPath, f), cb.equal(datePath, tomorrow.toDate()));
-            });
+            f = floorService.getOne(floor_id);
         }
+        return lineScheduleService.findAll(input, (Root<LineSchedule> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            Path<Floor> entryPath = root.get(LineSchedule_.FLOOR);
+            Path<Date> datePath = root.get(LineSchedule_.CREATE_DATE);
+            return cb.and(cb.equal(entryPath, f), cb.equal(datePath, nextDay.toDate()));
+        });
+        
     }
 
     @Override

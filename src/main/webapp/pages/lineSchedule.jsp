@@ -141,7 +141,7 @@
                     {data: "modelName", title: "機種"},
                     {data: "quantity", title: "數量"},
                     {data: "line.name", title: "線別"},
-                    {data: "quantity", title: "治具"},
+                    {data: "remark", title: "治具"},
                     {data: "lineScheduleStatus.name", title: "狀態"},
                     {data: "storageSpace.name", title: "位置"},
                     {data: "floor.name", title: "樓層"},
@@ -150,13 +150,9 @@
                 "columnDefs": [
                     {
                         "type": "html",
-                        "targets": [4, 6],
+                        "targets": [4, 5, 6],
                         'render': function (data, type, full, meta) {
-//                            return "<select class='form-control'>" +
-//                                    "<option>N/A</option>" +
-//                                    "<option>LA</option><option>LB</option>" +
-//                                    "<option>LC</option><option>LD</option>" +
-//                                    "</select>";
+
                             return data == null ? "N/A" : data;
                         }
                     },
@@ -166,13 +162,6 @@
                         'render': function (data, type, full, meta) {
                             var content = "<a class='storage-faq' data-toggle=''><span class='fa fa-question-sign' title='Location'></span></a><div id='po_content_' class='po_content form-inline'></div>";
                             return data == null ? "N/A" : (data + content);
-                        }
-                    },
-                    {
-                        "type": "html",
-                        "targets": 5,
-                        'render': function (data, type, full, meta) {
-                            return "<textarea class='form-control'></textarea>";
                         }
                     }
                 ],
@@ -235,11 +224,18 @@
 
             table.MakeCellsEditable({
                 "onUpdate": function (updatedCell, updatedRow, oldValue) {
-                    var value = updatedCell.data();
                     var data = updatedRow.data();
-                    delete data.line.name;
-                    delete data.floor.name;
-                    data.line.id = value;
+                    if (data.line && !isNaN(data.line.name)) {
+                        data.line.id = data.line.name;
+                        delete data.line.name;
+                    }
+                    if(data.floor && !isNaN(data.floor.name)){
+                        data.floor.id = data.floor.name;
+                        delete data.floor.name;
+                    }
+                    
+                    console.log(data);
+
                     $.ajax({
                         type: "POST",
                         url: "<c:url value="/LineScheduleController/update" />",
@@ -255,7 +251,7 @@
                     });
                 },
                 "inputCss": 'form-control',
-                "columns": [4, 8],
+                "columns": [4, 5, 8],
                 "allowNulls": {
                     "columns": [1, 2, 3, 4, 5],
                     "errorClass": 'error'
@@ -269,6 +265,11 @@
                         "column": 4,
                         "type": "list",
                         "options": lineOptions
+                    },
+                    {
+                        "column": 5,
+                        "type": "text",
+                        "options": null
                     },
                     {
                         "column": 8,

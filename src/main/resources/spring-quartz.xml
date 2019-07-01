@@ -13,7 +13,7 @@
     
     <bean id="Sync-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="Sync-Job" />
-        <property name="cronExpression" value="0 0 6 ? * MON-SUN *" />
+        <property name="cronExpression" value="0 0 6 ? * MON-FRI *" />
     </bean>
     
     <!--job2 setting-->
@@ -25,7 +25,7 @@
     
     <bean id="HandleUnfinishedSchedule-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="HandleUnfinishedSchedule-Job" />
-        <property name="cronExpression" value="0 30 22 ? * MON-SAT *" />
+        <property name="cronExpression" value="0 30 22 ? * MON-FRI *" />
     </bean>
 
     <!--schedule jobs-->
