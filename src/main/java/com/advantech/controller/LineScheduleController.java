@@ -8,12 +8,14 @@ package com.advantech.controller;
 import com.advantech.helper.SecurityPropertiesUtils;
 import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.Floor;
+import com.advantech.model.Line;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineSchedule_;
 import com.advantech.model.User;
 import com.advantech.service.FloorService;
 import com.advantech.service.LineScheduleService;
 import java.util.Date;
+import java.util.Objects;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
@@ -45,7 +47,7 @@ public class LineScheduleController extends CrudController<LineSchedule> {
 
     @Autowired
     private FloorService floorService;
-    
+
     @Autowired
     private WorkDateUtils workDateUtils;
 
@@ -55,7 +57,7 @@ public class LineScheduleController extends CrudController<LineSchedule> {
             @Valid DataTablesInput input,
             @RequestParam(required = false) Integer floor_id,
             HttpServletRequest request) throws Exception {
-        
+
         DateTime nextDay = workDateUtils.findNextDay();
         Floor f;
         if (floor_id == null) {
@@ -69,7 +71,7 @@ public class LineScheduleController extends CrudController<LineSchedule> {
             Path<Date> datePath = root.get(LineSchedule_.CREATE_DATE);
             return cb.and(cb.equal(entryPath, f), cb.equal(datePath, nextDay.toDate()));
         });
-        
+
     }
 
     @Override

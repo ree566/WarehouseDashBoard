@@ -6,11 +6,15 @@
 package com.advantech.service;
 
 import com.advantech.helper.WorkDateUtils;
+import com.advantech.model.Line;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
 import com.advantech.model.StorageSpace;
+import com.advantech.model.Warehouse;
 import com.advantech.repo.LineScheduleRepository;
 import static com.google.common.base.Preconditions.checkState;
+import java.util.List;
+import java.util.Objects;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
@@ -32,9 +36,12 @@ public class LineScheduleService {
 
     @Autowired
     private LineScheduleStatusService stateService;
-    
+
     @Autowired
     private WorkDateUtils workDateUtils;
+    
+    @Autowired
+    private WarehouseService warehouseService;
 
     public DataTablesOutput<LineSchedule> findAll(DataTablesInput dti) {
         return repo.findAll(dti);
@@ -49,12 +56,31 @@ public class LineScheduleService {
     }
 
     public <S extends LineSchedule> S save(S s) {
-        LineScheduleStatus lineOperated = stateService.getOne(3);
-        LineScheduleStatus onBoard = stateService.getOne(4);
-        if (s.getLineScheduleStatus().getId() != onBoard.getId()) {
-            s.setLineScheduleStatus(lineOperated);
+        if (isLineChanged(s)) {
+            LineScheduleStatus lineOperated = stateService.getOne(3);
+            LineScheduleStatus onBoard = stateService.getOne(4);
+            if (s.getLineScheduleStatus().getId() != onBoard.getId()) {
+                s.setLineScheduleStatus(lineOperated);
+            }
+            List<Warehouse> l = warehouseService
+                    .findByPoAndFloorAndFlag(s.getPo(), s.getFloor(), 0);
+            if(!l.isEmpty()){
+                Warehouse w = l.get(0);
+                w.setLineSchedule(s);
+                warehouseService.save(w);
+            }
         }
         return repo.save(s);
+    }
+
+    private boolean isLineChanged(LineSchedule pojo) {
+        LineSchedule prevPojo = repo.getOne(pojo.getId());
+        Line prevLine = prevPojo.getLine();
+        Line checkLine = pojo.getLine();
+        Integer prevId = (prevLine == null ? null : prevLine.getId());
+        Integer checkId = (checkLine == null ? null : checkLine.getId());
+
+        return !Objects.equals(prevId, checkId);
     }
 
     public void updateStatus(String po, LineScheduleStatus status, StorageSpace storageSpace) {

@@ -109,7 +109,7 @@ public class TestRepository {
         }
     }
 
-    @Test
+//    @Test
     @Transactional
     @Rollback(true)
     public void testStorageSpace() {
@@ -224,7 +224,7 @@ public class TestRepository {
         HibernateObjectPrinter.print(lineSchedules);
     }
     
-    @Test
+//    @Test
     @Transactional
     @Rollback(true)
     public void testfindByLineScheduleStatusNotAndCreateDateBetween(){
@@ -236,6 +236,20 @@ public class TestRepository {
         List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndCreateDateBetween(onboard, sD.toDate(), eD.toDate());
 
         HibernateObjectPrinter.print(lineSchedules);
+    }
+    
+    @Test
+    @Transactional
+    @Rollback(false)
+    public void testWarehouse2(){
+        Warehouse w = warehouseRepo.getOne(5);
+        assertNotNull(w);
+        
+        LineSchedule sche = lineScheduleRepo.getOne(3);
+        assertNotNull(sche);
+        
+        w.setLineSchedule(sche);
+        warehouseRepo.save(w);
     }
 
 }

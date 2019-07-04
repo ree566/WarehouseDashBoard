@@ -33,14 +33,17 @@ public class HandleUnfinishedSchedule {
 
     @Autowired
     private LineScheduleStatusRepository statusRepo;
-    
+
     @Autowired
     private WorkDateUtils workDateUtils;
 
     @Transactional
     public void execute() {
-        
-        DateTime nextDay = workDateUtils.findNextDay();
+
+        logger.info("Begin update unfinished schedule date to next day.");
+
+        //Update lineSchedule to plus two days
+        DateTime nextDay = workDateUtils.findNextDay().plusDays(1);
 
         //Find today unfinished job and set date to nextDay
         LineScheduleStatus onboard = statusRepo.getOne(4);
@@ -50,11 +53,15 @@ public class HandleUnfinishedSchedule {
         //Find un-finished po schedules
         List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndCreateDateBetween(onboard, sD.toDate(), eD.toDate());
 
+        logger.info("Update " + lineSchedules.size() + " datas.");
+
         lineSchedules.forEach(s -> {
             s.setCreateDate(nextDay.toDate());
         });
 
         lineScheduleRepo.saveAll(lineSchedules);
+        
+        logger.info("Update finish.");
     }
 
 }

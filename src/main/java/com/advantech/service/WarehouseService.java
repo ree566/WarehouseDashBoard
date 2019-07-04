@@ -13,6 +13,7 @@ import com.advantech.model.WarehouseEvent;
 import com.advantech.repo.WarehouseRepository;
 import java.util.List;
 import java.util.Optional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,11 +47,30 @@ public class WarehouseService {
     }
 
     public List<Warehouse> findByFlag(int flag) {
-        return repo.findByFlag(flag);
+        List<Warehouse> l = repo.findByFlag(flag);
+        l.forEach(w -> {
+            Hibernate.initialize(w.getLineSchedule());
+            if (w.getLineSchedule() != null) {
+                Hibernate.initialize(w.getLineSchedule().getLine());
+            }
+        });
+        return l;
     }
 
     public List<Warehouse> findByFloorAndFlag(Floor floor, int flag) {
-        return repo.findByFloorAndFlag(floor, flag);
+        List<Warehouse> l = repo.findByFloorAndFlag(floor, flag);
+        l.forEach(w -> {
+            Hibernate.initialize(w.getLineSchedule().getLine());
+        });
+        return l;
+    }
+
+    public List<Warehouse> findByPoAndFloorAndFlag(String po, Floor floor, int flag) {
+        return repo.findByPoAndFloorAndFlag(po, floor, flag);
+    }
+
+    public <S extends Warehouse> S save(S s) {
+        return repo.save(s);
     }
 
     public void save(Warehouse w, User user, String action) {

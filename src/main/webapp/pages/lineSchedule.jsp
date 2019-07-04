@@ -251,7 +251,7 @@
                     });
                 },
                 "inputCss": 'form-control',
-                "columns": [4, 5, 8],
+                "columns": [4, 8],
                 "allowNulls": {
                     "columns": [1, 2, 3, 4, 5],
                     "errorClass": 'error'
@@ -266,11 +266,11 @@
                         "type": "list",
                         "options": lineOptions
                     },
-                    {
-                        "column": 5,
-                        "type": "text",
-                        "options": null
-                    },
+//                    {
+//                        "column": 5,
+//                        "type": "text",
+//                        "options": null
+//                    },
                     {
                         "column": 8,
                         "type": "list",

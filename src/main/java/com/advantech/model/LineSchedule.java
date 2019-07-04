@@ -3,8 +3,11 @@ package com.advantech.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.voodoodyne.jackson.jsog.JSOGGenerator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,10 +16,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -37,6 +40,9 @@ public class LineSchedule implements java.io.Serializable {
     private LineScheduleStatus lineScheduleStatus;
     private Date createDate;
     private String remark;
+
+    @JsonIgnore
+    private Set<Warehouse> warehouses = new HashSet<Warehouse>(0);
 
     public LineSchedule() {
     }
@@ -153,6 +159,15 @@ public class LineSchedule implements java.io.Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "lineSchedule")
+    public Set<Warehouse> getWarehouses() {
+        return warehouses;
+    }
+
+    public void setWarehouses(Set<Warehouse> warehouses) {
+        this.warehouses = warehouses;
     }
 
 }

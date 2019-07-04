@@ -5,6 +5,7 @@
  */
 package com.advantech.job;
 
+import com.advantech.helper.HibernateObjectPrinter;
 import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.Floor;
 import com.advantech.model.LineSchedule;
@@ -15,10 +16,13 @@ import com.advantech.repo.FloorRepository;
 import com.advantech.repo.LineScheduleRepository;
 import com.advantech.repo.LineScheduleStatusRepository;
 import com.advantech.repo.WarehouseRepository;
+import com.advantech.webservice.port.PartMappingVarietyQueryPort;
+import com.advantech.webservice.root.PartMappingVarietyQueryRoot;
+import com.advantech.webservice.unmarshallclass.PartMappingVariety;
 import java.util.ArrayList;
 import java.util.List;
+import static java.util.stream.Collectors.toList;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,22 +52,32 @@ public class SyncData {
     @Autowired
     private WorkDateUtils workDateUtils;
 
+    @Autowired
+    private PartMappingVarietyQueryPort pmvPort;
+
     @Transactional
     public void execute() {
 
         DateTime nextDay = workDateUtils.findNextDay();
 
-        if (isScheduleExists(nextDay)) {
-            logger.info("Schedule in spec date is already exist.");
-            return;
-        }
-
+        //HandleUnfinishedSchedule update job to nextDay+1, so this clause will be true only.
+//        if (isScheduleExists(nextDay)) {
+//            logger.info("Schedule in spec date is already exist.");
+//            return;
+//        }
         List<Floor> floors = floorRepo.findAll();
         LineScheduleStatus defaultStatus = statusRepo.getOne(1);
         LineScheduleStatus onboard = statusRepo.getOne(4);
 
         List<RemoteSchedule> remoteSchedules = lineScheduleRepo.getPrepareSchedule(nextDay.toDate());
+        if (remoteSchedules.size() < 0) {
+            logger.info("Empty remote schedule, abort mission.");
+            return;
+        }
         List<LineSchedule> lineSchedules = new ArrayList();
+
+        PartMappingVarietyQueryRoot root = new PartMappingVarietyQueryRoot();
+        PartMappingVarietyQueryRoot.PARTMAPPINGVARIETY pmv = root.getPARTMAPPINGVARIETY();
 
         remoteSchedules.forEach(s -> {
             String floorName = s.getFloorName();
@@ -75,6 +89,16 @@ public class SyncData {
             if (filterFloor != null) {
                 LineSchedule sche = new LineSchedule(s.getPo(), s.getModelName(), s.getQuantity(), filterFloor, defaultStatus);
                 sche.setCreateDate(s.getOnDateTime());
+
+                try {
+                    pmv.setITEMNO(s.getModelName());
+                    List l = pmvPort.query(root);
+                    String remark = this.combinePartMappingVarietyMessages(l);
+                    sche.setRemark(remark);
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage(), ex);
+                }
+
                 lineSchedules.add(sche);
             }
         });
@@ -94,7 +118,7 @@ public class SyncData {
         });
 
         logger.info("Begin save " + lineSchedules.size() + " data into lineSchedule");
-
+//        HibernateObjectPrinter.print(lineSchedules);
         lineScheduleRepo.saveAll(lineSchedules);
     }
 
@@ -103,6 +127,24 @@ public class SyncData {
         DateTime d2 = new DateTime(d).withTime(23, 0, 0, 0);
         List l = lineScheduleRepo.findByCreateDateBetween(d1.toDate(), d2.toDate());
         return !l.isEmpty();
+    }
+
+    private String combinePartMappingVarietyMessages(List<PartMappingVariety> l) {
+        if (l.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        List<PartMappingVariety> filterList = l.stream().filter(p -> p.getStationId() == 2 || p.getStationId() == 20).collect(toList());
+        if (filterList.isEmpty()) {
+            return null;
+        }
+        filterList.forEach(p -> {
+            sb.append(p.getVarietyName());
+            sb.append(": ");
+            sb.append(p.getQty());
+            sb.append(", ");
+        });
+        return sb.toString();
     }
 
 }

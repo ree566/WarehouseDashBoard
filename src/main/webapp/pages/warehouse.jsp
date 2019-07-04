@@ -141,7 +141,13 @@
                         var clone_po = po.clone();
                         clone_po.find(".name").html(d.po);
                         clone_po.find(".data-id").val(d.id);
-                        $("#po_content_" + d.storageSpace.id).append(clone_po);
+                        var sche = d.lineSchedule;
+                        var target = $("#po_content_" + d.storageSpace.id);
+                        if (sche != null) {
+                            clone_po.addClass("text-success");
+                            clone_po.find(".name").append(" (" + sche.line.name + ") ");
+                        }
+                        target.append(clone_po);
                     }
                     $("input, select").addClass("form-control");
                 },

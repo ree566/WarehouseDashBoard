@@ -30,6 +30,7 @@ public class Warehouse implements java.io.Serializable {
     private String po;
     private StorageSpace storageSpace;
     private int flag;
+    private LineSchedule lineSchedule;
 
     public Warehouse() {
     }
@@ -76,6 +77,16 @@ public class Warehouse implements java.io.Serializable {
 
     public void setFlag(int flag) {
         this.flag = flag;
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lineSchedule_id")
+    public LineSchedule getLineSchedule() {
+        return lineSchedule;
+    }
+
+    public void setLineSchedule(LineSchedule lineSchedule) {
+        this.lineSchedule = lineSchedule;
     }
 
 }
