@@ -25,13 +25,13 @@
         <link rel="icon" href="../../favicon.ico">
 
         <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="<c:url value="/libs/bootstrap/bootstrap.css" />">
-        <link href="https://bootstrapious.com/tutorial/sidebar/style3.css" rel="stylesheet">
+        <link href="<c:url value="/libs/bootstrap/bootstrap.css" />" rel="stylesheet">
+        <link href="<c:url value="/libs/jquery.mCustomScrollbar/style3.css" />" rel="stylesheet">
 
         <!-- Custom styles for this template -->
         <link href="<c:url value="/jumbotron-narrow.css" />" rel="stylesheet">
 
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css" rel="stylesheet">
+        <link href="<c:url value="/libs/jquery.mCustomScrollbar/jquery.mCustomScrollbar.min.css" />" rel="stylesheet">
 
         <style>
             #gotop {
@@ -52,10 +52,10 @@
 
         <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
         <script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" ></script>
-        <script src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" ></script>
-        <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"></script>
-        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
+        <script src="<c:url value="/libs/popper.js/popper.js" />" ></script>
+        <script src="<c:url value="/libs/font-awesome/solid.js" />" ></script>
+        <script defer src="<c:url value="/libs/font-awesome/fontawesome.js"/>" ></script>
+        <script defer src="<c:url value="/libs/jquery.mCustomScrollbar/jquery.mCustomScrollbar.min.js" />"></script>
 
         <script src="<c:url value="/libs/jsog/JSOG.js" />"></script>
 

@@ -55,7 +55,7 @@ public class WarehouseController extends CrudController<Warehouse> {
     @ResponseBody
     @RequestMapping(value = INSERT_URL, method = {RequestMethod.POST})
     protected ResponseEntity insert(@ModelAttribute Warehouse pojo, BindingResult bindingResult) throws Exception {
-        User user = userService.findById(1).get();
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
         pojo.setFlag(0);
         warehouseService.save(pojo, user, "PUT_IN");
         return serverResponse(SUCCESS_MESSAGE);
@@ -72,7 +72,7 @@ public class WarehouseController extends CrudController<Warehouse> {
     @ResponseBody
     @RequestMapping(value = DELETE_URL, method = {RequestMethod.POST})
     protected ResponseEntity delete(@RequestParam int id) throws Exception {
-        User user = userService.findById(1).get();
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
         Warehouse pojo = warehouseService.findById(id).get();
         pojo.setFlag(1);
         warehouseService.save(pojo, user, "PULL_OUT");

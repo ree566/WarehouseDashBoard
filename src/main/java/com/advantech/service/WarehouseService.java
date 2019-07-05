@@ -49,8 +49,8 @@ public class WarehouseService {
     public List<Warehouse> findByFlag(int flag) {
         List<Warehouse> l = repo.findByFlag(flag);
         l.forEach(w -> {
-            Hibernate.initialize(w.getLineSchedule());
             if (w.getLineSchedule() != null) {
+                Hibernate.initialize(w.getLineSchedule());
                 Hibernate.initialize(w.getLineSchedule().getLine());
             }
         });
@@ -60,7 +60,10 @@ public class WarehouseService {
     public List<Warehouse> findByFloorAndFlag(Floor floor, int flag) {
         List<Warehouse> l = repo.findByFloorAndFlag(floor, flag);
         l.forEach(w -> {
-            Hibernate.initialize(w.getLineSchedule().getLine());
+            if (w.getLineSchedule() != null) {
+                Hibernate.initialize(w.getLineSchedule());
+                Hibernate.initialize(w.getLineSchedule().getLine());
+            }
         });
         return l;
     }

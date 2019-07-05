@@ -8,7 +8,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <title>${initParam.pageTitle}</title>
 <link href="<c:url value="/libs/datatables.net-dt/jquery.dataTables.css" />" rel="stylesheet">
-<link href="https://cdn.datatables.net/fixedheader/3.1.5/css/fixedHeader.dataTables.min.css" rel="stylesheet">
+<link href="<c:url value="/libs/datatables.net-fixedheader-dt/fixedHeader.dataTables.css" />" rel="stylesheet">
 
 <style>
     body.dragging, body.dragging * {
@@ -62,9 +62,9 @@
 
 <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
 <script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sortable/0.9.13/jquery-sortable-min.js"></script>
+<script src="<c:url value="/libs/jquery-sortable/jquery-sortable-min.js" />"></script>
 <script src="<c:url value="/libs/datatables.net/jquery.dataTables.js" />"></script>
-<script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+<script src="<c:url value="/libs/datatables.net-fixedheader/dataTables.fixedHeader.js" />"></script>
 <script src="<c:url value="/libs/spring-friendly/jquery.spring-friendly.js" />"></script>
 <script src="<c:url value="/libs/CellEdit/dataTables.cellEdit.js" />"></script>
 
@@ -88,8 +88,8 @@
         });
 
 
+        var ws;
         function connectToServer() {
-            var ws;
             var hostname = window.location.host;//Get the host ipaddress to link to the server.
 
             try {
@@ -229,11 +229,11 @@
                         data.line.id = data.line.name;
                         delete data.line.name;
                     }
-                    if(data.floor && !isNaN(data.floor.name)){
+                    if (data.floor && !isNaN(data.floor.name)) {
                         data.floor.id = data.floor.name;
                         delete data.floor.name;
                     }
-                    
+
                     console.log(data);
 
                     $.ajax({
@@ -243,6 +243,7 @@
                         dataType: "json",
                         success: function (response) {
                             alert("success");
+                            ws.send("ADD");
                             refreshTable();
                         },
                         error: function (xhr, ajaxOptions, thrownError) {

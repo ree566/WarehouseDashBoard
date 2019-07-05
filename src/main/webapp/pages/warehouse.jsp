@@ -11,6 +11,7 @@
 
 <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
 <script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
+<script src="<c:url value="/libs/mobile-detect/mobile-detect.min.js" />"></script>
 
 <style>
     #dashboard >  .po-list{
@@ -47,6 +48,8 @@
         var dashboard = $("#dashboard>div");
         var floor_id = '${param.floor_id}';
         var group_id = '${param.group_id}';
+        var md = new MobileDetect(window.navigator.userAgent);
+        console.log(md.mobile());
 
         function setStorageSpaceGroup() {
             var groupAreas = $("#nav-links");
@@ -89,7 +92,7 @@
                         var str = areas[i];
                         area_select.append("<option value='" + str.id + "'>" + str.name + "</option>");
                         dashboard.append("<div id='STORAGE_" + str.id + "' class='col-6 po-list'><label for='" + str.name + "' data-toggle='" + str.name + "'>" + str.name +
-                                "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-question-sign' title='Location'></span></a><div id='po_content_" +
+                                "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-question-circle' title='Location'></span></a><div id='po_content_" +
                                 str.id + "' class='po_content form-inline'></div></div>");
                     }
                     getWarehouse();
@@ -146,6 +149,9 @@
                         if (sche != null) {
                             clone_po.addClass("text-success");
                             clone_po.find(".name").append(" (" + sche.line.name + ") ");
+                            if (sche.remark != null && sche.remark.trim() != '') {
+                                clone_po.find(".name").append("※");
+                            }
                         }
                         target.append(clone_po);
                     }
