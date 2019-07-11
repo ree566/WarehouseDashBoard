@@ -40,6 +40,7 @@ public class LineSchedule implements java.io.Serializable {
     private LineScheduleStatus lineScheduleStatus;
     private Date createDate;
     private String remark;
+    private Integer lineSchedulePriorityOrder;
 
     @JsonIgnore
     private Set<Warehouse> warehouses = new HashSet<Warehouse>(0);
@@ -168,6 +169,15 @@ public class LineSchedule implements java.io.Serializable {
 
     public void setWarehouses(Set<Warehouse> warehouses) {
         this.warehouses = warehouses;
+    }
+
+    @Column(name = "lineSchedule_priority_order")
+    public Integer getLineSchedulePriorityOrder() {
+        return lineSchedulePriorityOrder;
+    }
+
+    public void setLineSchedulePriorityOrder(Integer lineSchedulePriorityOrder) {
+        this.lineSchedulePriorityOrder = lineSchedulePriorityOrder;
     }
 
 }

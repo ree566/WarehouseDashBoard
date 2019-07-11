@@ -32,6 +32,9 @@
     .row>div{
         border:1px black solid;
     }
+    .red{
+        color: red
+    }
 
     #items > * {transition: fill 0.2s, fill-opacity 0.2s, stroke 0.2s, stroke-opacity 0.2s;cursor: pointer;}body {margin:0;padding:0;}
     /**/
@@ -92,7 +95,7 @@
                         var str = areas[i];
                         area_select.append("<option value='" + str.id + "'>" + str.name + "</option>");
                         dashboard.append("<div id='STORAGE_" + str.id + "' class='col-6 po-list'><label for='" + str.name + "' data-toggle='" + str.name + "'>" + str.name +
-                                "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-question-circle' title='Location'></span></a><div id='po_content_" +
+                                "</label><a class='storage-faq' data-toggle='" + str.name + "'><span class='fa fa-map-marker-alt red' title='Location'></span></a><div id='po_content_" +
                                 str.id + "' class='po_content form-inline'></div></div>");
                     }
                     getWarehouse();
@@ -302,7 +305,7 @@
         <div class="modal-content">              
             <div class="modal-body">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <c:import url="/images/svg_areaMap_${param.floor_id}f.jsp" />
+                <c:import url="/images/svg_areaMap_${param.floor_id}.jsp" />
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
             </div>
         </div>

@@ -39,7 +39,7 @@ public class LineScheduleService {
 
     @Autowired
     private WorkDateUtils workDateUtils;
-    
+
     @Autowired
     private WarehouseService warehouseService;
 
@@ -64,10 +64,12 @@ public class LineScheduleService {
             }
             List<Warehouse> l = warehouseService
                     .findByPoAndFloorAndFlag(s.getPo(), s.getFloor(), 0);
-            if(!l.isEmpty()){
+            if (!l.isEmpty()) {
                 Warehouse w = l.get(0);
-                w.setLineSchedule(s);
-                warehouseService.save(w);
+                if (w.getLineSchedule() == null) {
+                    w.setLineSchedule(s);
+                    warehouseService.save(w);
+                }
             }
         }
         return repo.save(s);
@@ -83,19 +85,23 @@ public class LineScheduleService {
         return !Objects.equals(prevId, checkId);
     }
 
-    public void updateStatus(String po, LineScheduleStatus status, StorageSpace storageSpace) {
+    public void updateStatus(Warehouse w, LineScheduleStatus status) {
         DateTime nextDay = workDateUtils.findNextDay();
         DateTime sD = new DateTime(nextDay).withTime(0, 0, 0, 0);
         DateTime eD = new DateTime(nextDay).withTime(23, 59, 59, 0);
         LineScheduleStatus onBoard = stateService.getOne(4);
-        LineSchedule schedule = repo.findFirstByPoAndCreateDateBetweenAndLineScheduleStatusNot(po, sD.toDate(), eD.toDate(), onBoard);
+        LineSchedule schedule = repo.findFirstByPoAndCreateDateBetweenAndLineScheduleStatusNot(w.getPo(), sD.toDate(), eD.toDate(), onBoard);
         if (schedule != null) {
             checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
             schedule.setLineScheduleStatus(status);
             if (status.getId() != 4) {
-                schedule.setStorageSpace(storageSpace);
+                schedule.setStorageSpace(w.getStorageSpace());
             }
             repo.save(schedule);
+            if (w.getLineSchedule() == null) {
+                w.setLineSchedule(schedule);
+                warehouseService.save(w);
+            }
         }
     }
 

@@ -43,24 +43,26 @@ public class HandleUnfinishedSchedule {
         logger.info("Begin update unfinished schedule date to next day.");
 
         //Update lineSchedule to plus two days
-        DateTime nextDay = workDateUtils.findNextDay().plusDays(1);
+        DateTime nextDay = workDateUtils.findNextDay();
 
         //Find today unfinished job and set date to nextDay
         LineScheduleStatus onboard = statusRepo.getOne(4);
-        DateTime sD = new DateTime().withHourOfDay(0).withMinuteOfHour(0);
-        DateTime eD = new DateTime().withHourOfDay(23).withMinuteOfHour(59);
+        DateTime sD = new DateTime(nextDay).withTime(0, 0, 0, 0);
+        DateTime eD = new DateTime(nextDay).withTime(23, 59, 0, 0);
 
         //Find un-finished po schedules
         List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndCreateDateBetween(onboard, sD.toDate(), eD.toDate());
 
         logger.info("Update " + lineSchedules.size() + " datas.");
 
+        DateTime nextTargetDay = new DateTime(nextDay).plusDays(1);
+
         lineSchedules.forEach(s -> {
-            s.setCreateDate(nextDay.toDate());
+            s.setCreateDate(nextTargetDay.toDate());
         });
 
         lineScheduleRepo.saveAll(lineSchedules);
-        
+
         logger.info("Update finish.");
     }
 

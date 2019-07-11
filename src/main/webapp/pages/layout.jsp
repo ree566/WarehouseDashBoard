@@ -147,6 +147,12 @@
                         <a href="<c:url value="layout.jsp?content=lineSchedule&floor_id=2#" />">備料 - 6F</a>
                     </li>
                     <li>
+                        <a href="layout.jsp?content=warehouse&floor_id=3#">拉料 - 7F</a>
+                    </li>
+                    <li>
+                        <a href="<c:url value="layout.jsp?content=lineSchedule&floor_id=3#" />">備料 - 7F</a>
+                    </li>
+                    <li>
                         <a href="<c:url value="http://172.20.131.208/TWM3M/KB.aspx" />">物料確校系統</a>
                     </li>
                     <li>

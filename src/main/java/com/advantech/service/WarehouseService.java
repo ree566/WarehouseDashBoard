@@ -96,7 +96,7 @@ public class WarehouseService {
                     throw new IllegalArgumentException();
             }
         }
-        this.lineScheduleService.updateStatus(w.getPo(), status, w.getStorageSpace());
+        this.lineScheduleService.updateStatus(w, status);
     }
 
 }

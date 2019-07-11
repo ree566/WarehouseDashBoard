@@ -33,7 +33,7 @@
         <property name="triggers">
             <list>
                 <ref bean="Sync-Trig"/>
-                <!--<ref bean="HandleUnfinishedSchedule-Trig"/>-->
+                <ref bean="HandleUnfinishedSchedule-Trig"/>
             </list>
         </property>
         <property name="schedulerName">

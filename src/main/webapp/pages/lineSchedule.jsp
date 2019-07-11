@@ -57,7 +57,9 @@
         border-right: none;
         /** Define arrowhead **/
     }
-
+    .red {
+        color: red
+    }
 </style>
 
 <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
@@ -112,9 +114,8 @@
             } catch (e) {
                 console.log(e);
             }
-
-
         }
+
         function disconnectToServer() {
             ws.close();
         }
@@ -141,6 +142,7 @@
                     {data: "modelName", title: "機種"},
                     {data: "quantity", title: "數量"},
                     {data: "line.name", title: "線別"},
+                    {data: "lineSchedulePriorityOrder", title: "順序"},
                     {data: "remark", title: "治具"},
                     {data: "lineScheduleStatus.name", title: "狀態"},
                     {data: "storageSpace.name", title: "位置"},
@@ -150,7 +152,7 @@
                 "columnDefs": [
                     {
                         "type": "html",
-                        "targets": [4, 5, 6],
+                        "targets": [4, 5, 6, 7],
                         'render': function (data, type, full, meta) {
 
                             return data == null ? "N/A" : data;
@@ -158,10 +160,18 @@
                     },
                     {
                         "type": "html",
-                        "targets": [7],
+                        "targets": [8],
                         'render': function (data, type, full, meta) {
-                            var content = "<a class='storage-faq' data-toggle=''><span class='fa fa-question-sign' title='Location'></span></a><div id='po_content_' class='po_content form-inline'></div>";
+                            var content = "<a class='storage-faq' data-toggle=''><span class='fa fa-map-marker-alt red' title='Location'></span></a><div id='po_content_' class='po_content form-inline'></div>";
                             return data == null ? "N/A" : (data + content);
+                        }
+                    },
+                    {
+                        "type": "html",
+                        "targets": [10],
+                        'render': function (data, type, full, meta) {
+
+                            return data.substring(0, 10);
                         }
                     }
                 ],
@@ -221,6 +231,7 @@
 
             var lineOptions = getLineOption();
             var floorOptions = getFloorOption();
+            var numberOptions = getNumberOptions();
 
             table.MakeCellsEditable({
                 "onUpdate": function (updatedCell, updatedRow, oldValue) {
@@ -252,7 +263,7 @@
                     });
                 },
                 "inputCss": 'form-control',
-                "columns": [4, 8],
+                "columns": [4, 5, 9],
                 "allowNulls": {
                     "columns": [1, 2, 3, 4, 5],
                     "errorClass": 'error'
@@ -267,13 +278,13 @@
                         "type": "list",
                         "options": lineOptions
                     },
-//                    {
-//                        "column": 5,
-//                        "type": "text",
-//                        "options": null
-//                    },
                     {
-                        "column": 8,
+                        "column": 5,
+                        "type": "list",
+                        "options": numberOptions
+                    },
+                    {
+                        "column": 9,
                         "type": "list",
                         "options": floorOptions
                     }
@@ -331,6 +342,16 @@
             });
             return result;
         }
+
+        function getNumberOptions() {
+            var max = 10;
+            var result = [];
+            result.push({"value": "", "display": "N/A"});
+            for (var i = 1; i <= max; i++) {
+                result.push({"value": i, "display": i});
+            }
+            return result;
+        }
     });
 </script>
 
@@ -339,7 +360,7 @@
         <div class="modal-content">              
             <div class="modal-body">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <c:import url="/images/svg_areaMap_${param.floor_id}f.jsp" />
+                <c:import url="/images/svg_areaMap_${param.floor_id}.jsp" />
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
             </div>
         </div>

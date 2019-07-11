@@ -16,7 +16,7 @@
         <meta name="author" content="">
         <link rel="icon" href="../../favicon.ico">
 
-        <title>ws-test-page</title>
+        <title>${initParam.pageTitle}</title>
 
         <script>
 
@@ -37,6 +37,9 @@
                     </li>
                     <li>
                         <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=2#" />">6F首頁</a>
+                    </li>
+                    <li>
+                        <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=3#" />">7F首頁</a>
                     </li>
                 </ul>
             </div>
