@@ -60,6 +60,12 @@
     .red {
         color: red
     }
+    
+    #items > * {transition: fill 0.2s, fill-opacity 0.2s, stroke 0.2s, stroke-opacity 0.2s;cursor: pointer;}body {margin:0;padding:0;}
+    /**/
+    #items > .polygon{fill:#d60404;fill-opacity:0.40;stroke:none;stroke-opacity:0.50}
+    #items > .polygon:hover{fill:#f5d416;fill-opacity:0.60;stroke:;stroke-opacity:0.50}
+    #items > .polygon.active{fill:#f5d416;fill-opacity:0.60;stroke:;stroke-opacity:0.50}
 </style>
 
 <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
@@ -162,7 +168,7 @@
                         "type": "html",
                         "targets": [8],
                         'render': function (data, type, full, meta) {
-                            var content = "<a class='storage-faq' data-toggle=''><span class='fa fa-map-marker-alt red' title='Location'></span></a><div id='po_content_' class='po_content form-inline'></div>";
+                            var content = "<a class='storage-faq' data-toggle='" + data + "'><span class='fa fa-map-marker-alt red' title='Location'></span></a><div id='po_content_' class='po_content form-inline'></div>";
                             return data == null ? "N/A" : (data + content);
                         }
                     },
@@ -211,12 +217,20 @@
                     });
                     connectToServer();
                     //Disabled undefined index exception
+                    
+                    //regist faq button event
+                    $('body').on('click', '.storage-faq, #dashboard label', function () {
+                        var labelName = $(this).attr("data-toggle");
+                        var target = $("#imagemodal #polygon-" + labelName);
+                        highlightSelectArea(target);
+                        $('#imagemodal').modal('show');
+                    });
                 },
                 "bAutoWidth": false,
                 "displayLength": -1,
                 "lengthChange": true,
                 "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                pageLength: 20,
+                "pageLength": 20,
                 "filter": true,
                 "info": true,
                 "paginate": true,
@@ -351,6 +365,23 @@
                 result.push({"value": i, "display": i});
             }
             return result;
+        }
+
+        function highlightSelectArea(target) {
+            if (target.length == 0) {
+                return;
+            }
+            var interval;
+            var area = target;
+            area.trigger("hover");
+            interval = setInterval(function () {
+                area.toggleClass("active");
+            }, 750);
+
+            $('#imagemodal').on('hidden.bs.modal', function () {
+                clearInterval(interval);
+            });
+
         }
     });
 </script>

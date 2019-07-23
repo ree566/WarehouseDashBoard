@@ -137,6 +137,7 @@
                 type: "GET",
                 url: "<c:url value="/WarehouseController/findAll" />",
                 data: {
+                    storageSpaceGroupId: group_id
                 },
                 dataType: "json",
                 success: function (response) {
@@ -151,7 +152,9 @@
                         var target = $("#po_content_" + d.storageSpace.id);
                         if (sche != null) {
                             clone_po.addClass("text-success");
-                            clone_po.find(".name").append(" (" + sche.line.name + ") ");
+                            if (sche.line != null) {
+                                clone_po.find(".name").append(" (" + sche.line.name + ") ");
+                            }
                             if (sche.remark != null && sche.remark.trim() != '') {
                                 clone_po.find(".name").append("※");
                             }

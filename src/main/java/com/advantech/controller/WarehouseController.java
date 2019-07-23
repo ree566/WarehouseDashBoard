@@ -6,12 +6,11 @@
 package com.advantech.controller;
 
 import com.advantech.helper.SecurityPropertiesUtils;
-import com.advantech.model.Floor;
+import com.advantech.model.StorageSpaceGroup;
 import com.advantech.model.User;
 import com.advantech.model.Warehouse;
-import com.advantech.service.UserService;
+import com.advantech.service.StorageSpaceGroupService;
 import com.advantech.service.WarehouseService;
-import static com.google.common.base.Preconditions.checkArgument;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,19 +35,13 @@ public class WarehouseController extends CrudController<Warehouse> {
     private WarehouseService warehouseService;
 
     @Autowired
-    private UserService userService;
- 
+    private StorageSpaceGroupService storageSpaceGroupService;
+
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
-    protected List<Warehouse> findAll(HttpServletRequest request) throws Exception {
-        if (request.isUserInRole("ROLE_ADMIN")) {
-            return warehouseService.findByFlag(0);
-        } else {
-            User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
-            Floor f = user.getFloor();
-            checkArgument(f != null, "No storageSpace in setting, please try again.");
-            return warehouseService.findByFloorAndFlag(f, 0);
-        }
+    protected List<Warehouse> findAll(HttpServletRequest request, @RequestParam int storageSpaceGroupId) throws Exception {
+        StorageSpaceGroup sp = storageSpaceGroupService.getOne(storageSpaceGroupId);
+        return warehouseService.findByStorageSpaceGroupAndFlag(sp, 0);
     }
 
     @Override

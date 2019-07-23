@@ -24,12 +24,16 @@ public class StorageSpaceGroupService {
     @Autowired
     private StorageSpaceGroupRepository repo;
 
+    public StorageSpaceGroup getOne(Integer id) {
+        return repo.getOne(id);
+    }
+
     public List<StorageSpaceGroup> findAllByOrderByName() {
         return repo.findAllByOrderByName();
     }
 
     public List<StorageSpaceGroup> findByFloorOrderByName(Floor floor) {
-        return repo.findByFloorOrderByName(floor);
+        return repo.findByFloorAndEnabledOrderByName(floor, 1);
     }
 
 }

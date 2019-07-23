@@ -7,6 +7,7 @@ package com.advantech.service;
 
 import com.advantech.model.Floor;
 import com.advantech.model.LineScheduleStatus;
+import com.advantech.model.StorageSpaceGroup;
 import com.advantech.model.User;
 import com.advantech.model.Warehouse;
 import com.advantech.model.WarehouseEvent;
@@ -46,19 +47,8 @@ public class WarehouseService {
         return repo.findById(id);
     }
 
-    public List<Warehouse> findByFlag(int flag) {
-        List<Warehouse> l = repo.findByFlag(flag);
-        l.forEach(w -> {
-            if (w.getLineSchedule() != null) {
-                Hibernate.initialize(w.getLineSchedule());
-                Hibernate.initialize(w.getLineSchedule().getLine());
-            }
-        });
-        return l;
-    }
-
-    public List<Warehouse> findByFloorAndFlag(Floor floor, int flag) {
-        List<Warehouse> l = repo.findByFloorAndFlag(floor, flag);
+    public List<Warehouse> findByStorageSpaceGroupAndFlag(StorageSpaceGroup storageSpaceGroup, int flag) {
+        List<Warehouse> l = repo.findByStorageSpaceGroupAndFlag(storageSpaceGroup, flag);
         l.forEach(w -> {
             if (w.getLineSchedule() != null) {
                 Hibernate.initialize(w.getLineSchedule());
