@@ -170,12 +170,12 @@ public class TestRepository {
     @Transactional
     @Rollback(true)
     public void testLineScheduleStatus2() {
-        DateTime sD = new DateTime().withHourOfDay(0);
-        DateTime eD = new DateTime().withHourOfDay(23);
-        LineScheduleStatus onBoard = statusRepo.getOne(3);
-        LineSchedule schedule = this.lineScheduleRepo
-                .findFirstByPoAndCreateDateBetweenAndLineScheduleStatusNot("PCJ6112ZA", sD.toDate(), eD.toDate(), onBoard);
-        HibernateObjectPrinter.print(schedule);
+//        DateTime sD = new DateTime().withHourOfDay(0);
+//        DateTime eD = new DateTime().withHourOfDay(23);
+//        LineScheduleStatus onBoard = statusRepo.getOne(3);
+//        LineSchedule schedule = this.lineScheduleRepo
+//                .findFirstByPoAndOnBoardDateBetweenAndLineScheduleStatusNot("PCJ6112ZA", sD.toDate(), eD.toDate(), onBoard);
+//        HibernateObjectPrinter.print(schedule);
     }
 
 //    @Test
@@ -202,7 +202,7 @@ public class TestRepository {
             Floor filterFloor = floors.stream().filter(f -> f.getName().equals(floor)).findFirst().orElse(null);
             if (filterFloor != null) {
                 LineSchedule sche = new LineSchedule(s.getPo(), s.getModelName(), s.getQuantity(), filterFloor, defaultStatus);
-                sche.setCreateDate(new Date());
+                sche.setOnBoardDate(new Date());
                 lineSchedules.add(sche);
             }
         });
@@ -227,13 +227,13 @@ public class TestRepository {
 //    @Test
     @Transactional
     @Rollback(true)
-    public void testfindByLineScheduleStatusNotAndCreateDateBetween(){
+    public void testfindByLineScheduleStatusNotAndOnBoardDateBetween(){
         LineScheduleStatus onboard = statusRepo.getOne(4);
         DateTime sD = new DateTime().withHourOfDay(0).withMinuteOfHour(0);
         DateTime eD = new DateTime().withHourOfDay(23).withMinuteOfHour(59);
 
         //Find un-finished po schedules
-        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndCreateDateBetween(onboard, sD.toDate(), eD.toDate());
+        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndOnBoardDateBetween(onboard, sD.toDate(), eD.toDate());
 
         HibernateObjectPrinter.print(lineSchedules);
     }

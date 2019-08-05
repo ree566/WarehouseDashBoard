@@ -5,7 +5,6 @@
  */
 package com.advantech.job;
 
-import com.advantech.helper.HibernateObjectPrinter;
 import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.Floor;
 import com.advantech.model.LineSchedule;
@@ -60,11 +59,6 @@ public class SyncData {
 
         DateTime nextDay = workDateUtils.findNextDay();
 
-        //HandleUnfinishedSchedule update job to nextDay+1, so this clause will be true only.
-//        if (isScheduleExists(nextDay)) {
-//            logger.info("Schedule in spec date is already exist.");
-//            return;
-//        }
         List<Floor> floors = floorRepo.findAll();
         LineScheduleStatus defaultStatus = statusRepo.getOne(1);
         LineScheduleStatus onboard = statusRepo.getOne(4);
@@ -83,12 +77,15 @@ public class SyncData {
             String floorName = s.getFloorName();
             if ("M2".equals(floorName)) {
                 floorName = "5F";
+            } else if ("M6".equals(floorName)) {
+                floorName = "7F";
             }
             final String floor = floorName;
             Floor filterFloor = floors.stream().filter(f -> f.getName().equals(floor)).findFirst().orElse(null);
             if (filterFloor != null) {
                 LineSchedule sche = new LineSchedule(s.getPo(), s.getModelName(), s.getQuantity(), filterFloor, defaultStatus);
                 sche.setCreateDate(s.getOnDateTime());
+                sche.setOnBoardDate(s.getOnDateTime());
 
                 try {
                     pmv.setITEMNO(s.getModelName());
@@ -125,7 +122,7 @@ public class SyncData {
     private boolean isScheduleExists(DateTime d) {
         DateTime d1 = new DateTime(d).withTime(0, 0, 0, 0);
         DateTime d2 = new DateTime(d).withTime(23, 0, 0, 0);
-        List l = lineScheduleRepo.findByCreateDateBetween(d1.toDate(), d2.toDate());
+        List l = lineScheduleRepo.findByOnBoardDateBetween(d1.toDate(), d2.toDate());
         return !l.isEmpty();
     }
 

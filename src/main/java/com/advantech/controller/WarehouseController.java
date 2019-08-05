@@ -5,11 +5,14 @@
  */
 package com.advantech.controller;
 
+import com.advantech.helper.HibernateObjectPrinter;
 import com.advantech.helper.SecurityPropertiesUtils;
+import com.advantech.model.StorageSpace;
 import com.advantech.model.StorageSpaceGroup;
 import com.advantech.model.User;
 import com.advantech.model.Warehouse;
 import com.advantech.service.StorageSpaceGroupService;
+import com.advantech.service.StorageSpaceService;
 import com.advantech.service.WarehouseService;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +39,9 @@ public class WarehouseController extends CrudController<Warehouse> {
 
     @Autowired
     private StorageSpaceGroupService storageSpaceGroupService;
+    
+    @Autowired
+    private StorageSpaceService storageSpaceService;
 
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
@@ -58,7 +64,10 @@ public class WarehouseController extends CrudController<Warehouse> {
     @ResponseBody
     @RequestMapping(value = UPDATE_URL, method = {RequestMethod.POST})
     protected ResponseEntity update(@ModelAttribute Warehouse pojo, BindingResult bindingResult) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        HibernateObjectPrinter.print(pojo);
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        warehouseService.save(pojo, user, "PUT_IN");
+        return serverResponse(SUCCESS_MESSAGE);
     }
 
     @Override
@@ -69,6 +78,17 @@ public class WarehouseController extends CrudController<Warehouse> {
         Warehouse pojo = warehouseService.findById(id).get();
         pojo.setFlag(1);
         warehouseService.save(pojo, user, "PULL_OUT");
+        return serverResponse(SUCCESS_MESSAGE);
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "changeStorageSpace", method = {RequestMethod.POST})
+    protected ResponseEntity changeStorageSpace(@RequestParam int warehouseId, @RequestParam int storageSpaceId) throws Exception {
+        User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
+        Warehouse w = warehouseService.findById(warehouseId).get();
+        StorageSpace ss = storageSpaceService.findById(storageSpaceId).get();
+        w.setStorageSpace(ss);
+        warehouseService.changeStorageSpace(w, user);
         return serverResponse(SUCCESS_MESSAGE);
     }
 

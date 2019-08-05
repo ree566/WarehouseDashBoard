@@ -5,10 +5,13 @@
  */
 package com.advantech.repo;
 
+import com.advantech.model.Floor;
 import com.advantech.model.StorageSpace;
 import com.advantech.model.StorageSpaceGroup;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -17,6 +20,9 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface StorageSpaceRepository extends JpaRepository<StorageSpace, Integer> {
+    
+    @Query("select s from StorageSpace s join s.storageSpaceGroup sg where sg.floor = :floor")
+    public List<StorageSpace> findByFloor(@Param("floor") Floor f);
     
     public List<StorageSpace> findByStorageSpaceGroupOrderByName(StorageSpaceGroup group);
     

@@ -8,9 +8,7 @@ package com.advantech.controller;
 import com.advantech.model.Floor;
 import com.advantech.model.StorageSpace;
 import com.advantech.model.StorageSpaceGroup;
-import com.advantech.service.FloorService;
 import com.advantech.service.StorageSpaceService;
-import static com.google.common.base.Preconditions.checkArgument;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -35,12 +33,22 @@ public class StorageSpaceController {
 
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
-    protected List<StorageSpace> findAll(
-            @Valid @ModelAttribute StorageSpaceGroup storageSpaceGroup,
-            HttpServletRequest request) throws Exception {
-        
-        return storageSpaceService.findByStorageSpaceGroupOrderByName(storageSpaceGroup);
+    protected List<StorageSpace> findAll() {
+        return storageSpaceService.findAll();
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "findByFloor", method = {RequestMethod.GET})
+    protected List<StorageSpace> findByFloor(@ModelAttribute Floor f) {
+        return storageSpaceService.findByFloor(f);
+    }
 
+    @ResponseBody
+    @RequestMapping(value = "findByStorageSpaceGroup", method = {RequestMethod.GET})
+    protected List<StorageSpace> findByStorageSpaceGroup(
+            @Valid @ModelAttribute StorageSpaceGroup storageSpaceGroup,
+            HttpServletRequest request) {
+        return storageSpaceService.findByStorageSpaceGroupOrderByName(storageSpaceGroup);
     }
 
 }

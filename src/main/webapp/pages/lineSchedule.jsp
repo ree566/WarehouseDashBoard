@@ -60,7 +60,7 @@
     .red {
         color: red
     }
-    
+
     #items > * {transition: fill 0.2s, fill-opacity 0.2s, stroke 0.2s, stroke-opacity 0.2s;cursor: pointer;}body {margin:0;padding:0;}
     /**/
     #items > .polygon{fill:#d60404;fill-opacity:0.40;stroke:none;stroke-opacity:0.50}
@@ -69,6 +69,7 @@
 </style>
 
 <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
 <script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
 <script src="<c:url value="/libs/jquery-sortable/jquery-sortable-min.js" />"></script>
 <script src="<c:url value="/libs/datatables.net/jquery.dataTables.js" />"></script>
@@ -76,15 +77,52 @@
 <script src="<c:url value="/libs/spring-friendly/jquery.spring-friendly.js" />"></script>
 <script src="<c:url value="/libs/CellEdit/dataTables.cellEdit.js" />"></script>
 
+<script src="<c:url value="/libs/block-ui/jquery.blockUI.js" />"></script>
+
 <script>
     $(function () {
+        $(document).ajaxSend(function () {
+            block();//Block the screen when ajax is sending, Prevent form submit repeatly.
+        });
+        $(document).ajaxComplete(function () {
+            $.unblockUI();//Unblock the ajax when success
+        });
+
+        function block() {
+            $.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .5,
+                    color: '#fff'
+                },
+                fadeIn: 0,
+                overlayCSS: {
+                    backgroundColor: '#FFFFFF',
+                    opacity: .3
+                }
+            });
+        }
+
         $.fn.dataTable.ext.errMode = 'none';
 
         var floor_id = '${param.floor_id}';
 
-        var table;
+        var table, table2;
+
+        var lineOptions = getLineOption();
+        var floorOptions = getFloorOption();
+        var numberOptions = getNumberOptions();
+        var statusOptions = getStatusOptions();
+
         initTable();
+        initTable2();
+
 //        initTable(table2);
+        $.datepicker.setDefaults({dateFormat: "yy-mm-dd'T'24:00:00.000'Z'"});
 
         $('#favourable tbody').on('click', 'tr', function () {
             if ($(this).hasClass('selected')) {
@@ -95,6 +133,42 @@
             }
         });
 
+        var dateFormat = "yy-mm-dd",
+                from = $("#from")
+                .datepicker({
+                    defaultDate: "+0w",
+                    changeMonth: true,
+                    numberOfMonths: 1
+                })
+                .on("change", function () {
+                    to.datepicker("option", "minDate", getDate(this));
+                }),
+                to = $("#to").datepicker({
+            defaultDate: "+1d",
+            changeMonth: true,
+            numberOfMonths: 1
+        })
+                .on("change", function () {
+                    from.datepicker("option", "maxDate", getDate(this));
+                });
+        from.datepicker("setDate", new Date());
+        to.datepicker("setDate", new Date());
+
+        $("#searchOnBoard").click(function () {
+            console.log($("#from").val());
+            table2.ajax.reload();
+        });
+
+        function getDate(element) {
+            var date;
+            try {
+                date = $.datepicker.parseDate(dateFormat, element.value);
+            } catch (error) {
+                date = null;
+            }
+
+            return date;
+        }
 
         var ws;
         function connectToServer() {
@@ -111,7 +185,7 @@
                     d = d.replace(/\"/g, "");
                     console.log(d);
                     if ("ADD" == d || "REMOVE" == d) {
-                        refreshTable();
+                        refreshTable(table);
                     }
                 };
                 ws.onclose = function () {
@@ -153,7 +227,8 @@
                     {data: "lineScheduleStatus.name", title: "狀態"},
                     {data: "storageSpace.name", title: "位置"},
                     {data: "floor.name", title: "樓層"},
-                    {data: "createDate", title: "上線日"}
+                    {data: "createDate", title: "原始上線日"},
+                    {data: "onBoardDate", title: "預計上線日"}
                 ],
                 "columnDefs": [
                     {
@@ -174,7 +249,199 @@
                     },
                     {
                         "type": "html",
-                        "targets": [10],
+                        "targets": [10, 11],
+                        'render': function (data, type, full, meta) {
+
+                            return data.substring(0, 10);
+                        }
+                    }
+                ],
+                "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                    var a = aData.lineScheduleStatus.id;
+                    var cls;
+                    switch (a) {
+                        case 1:
+                            cls = "table-danger";
+                            break;
+                        case 2:
+                            cls = "table-warning";
+                            break;
+                        case 3:
+                            cls = "table-success";
+                            break;
+                        case 4:
+                            cls = "table-secondary";
+                            break;
+                        case 5:
+                            cls = "text-danger";
+                            break;
+                        default:
+                            cls = "";
+                    }
+
+                    $('td', nRow).addClass(cls);
+                },
+                "oLanguage": {
+                    "sLengthMenu": "顯示 _MENU_ 筆記錄",
+                    "sZeroRecords": "無符合資料",
+                    "sInfo": "目前記錄：_START_ 至 _END_, 總筆數：_TOTAL_"
+                },
+                "initComplete": function (settings, json) {
+                    $('body').on('click', '.storage-faq, #dashboard label', function () {
+                        $('#imagemodal').modal('show');
+                    });
+                    connectToServer();
+                    //Disabled undefined index exception
+
+                    //regist faq button event
+                    $('body').on('click', '.storage-faq, #dashboard label', function () {
+                        var labelName = $(this).attr("data-toggle");
+                        var target = $("#imagemodal #polygon-" + labelName);
+                        highlightSelectArea(target);
+                        $('#imagemodal').modal('show');
+                    });
+                },
+                "bAutoWidth": false,
+                "displayLength": -1,
+                "lengthChange": true,
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                "pageLength": 20,
+                "filter": true,
+                "info": true,
+                "paginate": true,
+                "select": true,
+                "searchDelay": 1000,
+                "ordering": true
+            });
+
+            table.on('error.dt', function (e, settings, techNote, message) {
+                console.log('An error has been reported by DataTables: ', message);
+            });
+
+            table.MakeCellsEditable({
+                "onUpdate": function (updatedCell, updatedRow, oldValue) {
+                    var index = updatedCell.index().column;
+                    var data = updatedRow.data();
+                    if (index == 4) {
+                        data.line.id = data.line.name;
+                        delete data.line.name;
+                    } else if (index == 5) {
+
+                    } else if (index == 7) {
+                        data.lineScheduleStatus.id = data.lineScheduleStatus.name;
+                        delete data.lineScheduleStatus.name;
+                    } else if (index == 9) {
+                        data.floor.id = data.floor.name;
+                        delete data.floor.name;
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: "<c:url value="/LineScheduleController/update" />",
+                        data: data,
+                        dataType: "json",
+                        success: function (response) {
+                            alert("success");
+                            refreshTable(table);
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(xhr.responseText);
+                        }
+                    });
+                },
+                "inputCss": 'form-control',
+                "columns": [4, 5, 7, 9, 11],
+                "allowNulls": {
+                    "columns": [1, 2, 3, 4, 5],
+                    "errorClass": 'error'
+                },
+                "confirmationButton": {
+                    "confirmCss": 'btn btn-success',
+                    "cancelCss": 'btn btn-danger'
+                },
+                "inputTypes": [
+                    {
+                        "column": 4,
+                        "type": "list",
+                        "options": lineOptions
+                    },
+                    {
+                        "column": 5,
+                        "type": "list",
+                        "options": numberOptions
+                    },
+                    {
+                        "column": 7,
+                        "type": "list",
+                        "options": statusOptions
+                    },
+                    {
+                        "column": 9,
+                        "type": "list",
+                        "options": floorOptions
+                    },
+                    {
+                        "column": 11,
+                        "type": "datepicker", // requires jQuery UI: http://http://jqueryui.com/download/
+                        "options": {
+                            "icon": "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif" // Optional
+                        }
+                    }
+                ]
+            });
+        }
+
+        function initTable2() {
+            table2 = $('#favourable2').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "fixedHeader": true,
+                "orderCellsTop": true,
+                "ajax": {
+                    "url": "<c:url value="/LineScheduleController/findOnBoardByDateBetween" />",
+                    "type": "GET",
+                    "data": function (d) {
+                        d.floor_id = floor_id;
+                        d.startDate = $("#from").val();
+                        d.endDate = $("#to").val();
+                    },
+                    "dataSrc": function (json) {
+                        return JSOG.decode(json.data);
+                    }
+                },
+                "columns": [
+                    {data: "id", title: "id", visible: false},
+                    {data: "po", title: "工單"},
+                    {data: "modelName", title: "機種"},
+                    {data: "quantity", title: "數量"},
+                    {data: "line.name", title: "線別"},
+                    {data: "lineSchedulePriorityOrder", title: "順序"},
+                    {data: "remark", title: "治具"},
+                    {data: "lineScheduleStatus.name", title: "狀態"},
+                    {data: "storageSpace.name", title: "位置"},
+                    {data: "floor.name", title: "樓層"},
+                    {data: "createDate", title: "原始上線日"},
+                    {data: "onBoardDate", title: "預計上線日"}
+                ],
+                "columnDefs": [
+                    {
+                        "type": "html",
+                        "targets": [4, 5, 6, 7],
+                        'render': function (data, type, full, meta) {
+
+                            return data == null ? "N/A" : data;
+                        }
+                    },
+                    {
+                        "type": "html",
+                        "targets": [8],
+                        'render': function (data, type, full, meta) {
+                            var content = "<a class='storage-faq' data-toggle='" + data + "'><span class='fa fa-map-marker-alt red' title='Location'></span></a><div id='po_content_' class='po_content form-inline'></div>";
+                            return data == null ? "N/A" : (data + content);
+                        }
+                    },
+                    {
+                        "type": "html",
+                        "targets": [10, 11],
                         'render': function (data, type, full, meta) {
 
                             return data.substring(0, 10);
@@ -209,22 +476,7 @@
                     "sInfo": "目前記錄：_START_ 至 _END_, 總筆數：_TOTAL_"
                 },
                 "initComplete": function (settings, json) {
-                    $('body').on('click', '.storage-faq, #dashboard label', function () {
-//                        var labelName = $(this).attr("data-toggle");
-//                        var target = $("#imagemodal #polygon-" + labelName);
-//                        highlightSelectArea(target);
-                        $('#imagemodal').modal('show');
-                    });
-                    connectToServer();
-                    //Disabled undefined index exception
-                    
-                    //regist faq button event
-                    $('body').on('click', '.storage-faq, #dashboard label', function () {
-                        var labelName = $(this).attr("data-toggle");
-                        var target = $("#imagemodal #polygon-" + labelName);
-                        highlightSelectArea(target);
-                        $('#imagemodal').modal('show');
-                    });
+
                 },
                 "bAutoWidth": false,
                 "displayLength": -1,
@@ -239,37 +491,23 @@
                 "ordering": true
             });
 
-            table.on('error.dt', function (e, settings, techNote, message) {
-                console.log('An error has been reported by DataTables: ', message);
-            });
-
-            var lineOptions = getLineOption();
-            var floorOptions = getFloorOption();
-            var numberOptions = getNumberOptions();
-
-            table.MakeCellsEditable({
+            table2.MakeCellsEditable({
                 "onUpdate": function (updatedCell, updatedRow, oldValue) {
+                    var index = updatedCell.index().column;
                     var data = updatedRow.data();
-                    if (data.line && !isNaN(data.line.name)) {
-                        data.line.id = data.line.name;
-                        delete data.line.name;
+                    if (index == 7) {
+                        data.lineScheduleStatus.id = data.lineScheduleStatus.name;
+                        delete data.lineScheduleStatus.name;
                     }
-                    if (data.floor && !isNaN(data.floor.name)) {
-                        data.floor.id = data.floor.name;
-                        delete data.floor.name;
-                    }
-
-                    console.log(data);
-
                     $.ajax({
                         type: "POST",
-                        url: "<c:url value="/LineScheduleController/update" />",
+                        url: "<c:url value="/LineScheduleController/updateOnboard" />",
                         data: data,
                         dataType: "json",
                         success: function (response) {
                             alert("success");
                             ws.send("ADD");
-                            refreshTable();
+                            refreshTable(table2);
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             alert(xhr.responseText);
@@ -277,7 +515,7 @@
                     });
                 },
                 "inputCss": 'form-control',
-                "columns": [4, 5, 9],
+                "columns": [7],
                 "allowNulls": {
                     "columns": [1, 2, 3, 4, 5],
                     "errorClass": 'error'
@@ -288,26 +526,16 @@
                 },
                 "inputTypes": [
                     {
-                        "column": 4,
+                        "column": 7,
                         "type": "list",
-                        "options": lineOptions
-                    },
-                    {
-                        "column": 5,
-                        "type": "list",
-                        "options": numberOptions
-                    },
-                    {
-                        "column": 9,
-                        "type": "list",
-                        "options": floorOptions
+                        "options": statusOptions
                     }
                 ]
             });
         }
 
-        function refreshTable() {
-            table.ajax.reload();
+        function refreshTable(tb) {
+            tb.ajax.reload();
         }
 
         function getLineOption() {
@@ -357,10 +585,29 @@
             return result;
         }
 
+        function getStatusOptions() {
+            var result = [];
+            $.ajax({
+                type: 'GET',
+                url: "<c:url value="/LineScheduleStatusController/findAll" />",
+                async: false,
+                success: function (response) {
+                    var arr = response;
+                    for (var i = 0; i < arr.length; i++) {
+                        var obj = arr[i];
+                        result.push({"value": obj.id, "display": obj.name});
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.responseText);
+                }
+            });
+            return result;
+        }
+
         function getNumberOptions() {
             var max = 10;
             var result = [];
-            result.push({"value": "", "display": "N/A"});
             for (var i = 1; i <= max; i++) {
                 result.push({"value": i, "display": i});
             }
@@ -419,15 +666,25 @@
             <table id="favourable" class="table table-sm table-bordered sorted_table table-responsive-sm">
             </table>
         </div>
-        <!--        <div class="col">
-                    <h3>明日上線排程</h3>
-                    <table id="favourable2" class="table table-striped table-bordered sorted_table">
-                    </table>
-                </div>-->
     </div>
     <div class="row">
         <div class="col">
             <div id="connectionStatus">Disconnected</div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <h3>已上線狀態修改</h3>
+            <div class="form-inline">
+                <label for="from">From: </label>
+                <input type="text" id="from" class="form-control" placeholder="請輸入起始日期" />
+                <label for="to">to: </label>
+                <input type="text" id="to" class="form-control" placeholder="請輸入結束日期"  />
+                <input type="button" id="searchOnBoard" class="form-control" value="確定" />
+            </div>
+            <table id="favourable2" class="table table-sm table-bordered sorted_table table-responsive-sm">
+            </table>
         </div>
     </div>
 </div>

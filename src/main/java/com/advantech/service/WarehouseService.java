@@ -5,8 +5,11 @@
  */
 package com.advantech.service;
 
+import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.Floor;
+import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
+import com.advantech.model.StorageSpace;
 import com.advantech.model.StorageSpaceGroup;
 import com.advantech.model.User;
 import com.advantech.model.Warehouse;
@@ -15,6 +18,7 @@ import com.advantech.repo.WarehouseRepository;
 import java.util.List;
 import java.util.Optional;
 import org.hibernate.Hibernate;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +42,15 @@ public class WarehouseService {
 
     @Autowired
     private LineScheduleService lineScheduleService;
+
+    @Autowired
+    private WorkDateUtils workDateUtils;
+
+    @Autowired
+    private LineScheduleStatusService stateService;
+
+    @Autowired
+    private StorageSpaceService storageSpaceService;
 
     public List<Warehouse> findAll() {
         return repo.findAll();
@@ -87,6 +100,26 @@ public class WarehouseService {
             }
         }
         this.lineScheduleService.updateStatus(w, status);
+    }
+
+    public void changeStorageSpace(Warehouse w, User user) {
+        repo.save(w);
+        WarehouseEvent e = new WarehouseEvent(w, user, "CHANGE_AREA");
+        warehouseEventService.save(e);
+
+        DateTime nextDay = workDateUtils.findNextDay();
+        DateTime sD = new DateTime(nextDay).withTime(0, 0, 0, 0);
+        DateTime eD = new DateTime(nextDay).withTime(23, 59, 59, 0);
+
+        LineScheduleStatus onBoard = stateService.getOne(4);
+        StorageSpace ss = storageSpaceService.findById(w.getStorageSpace().getId()).get();
+        Floor f = ss.getStorageSpaceGroup().getFloor();
+        LineSchedule schedule = lineScheduleService.findFirstByPoAndFloorAndOnBoardDateBetweenAndLineScheduleStatusNot(w.getPo(), f, sD.toDate(), eD.toDate(), onBoard);
+        if (schedule != null) {
+            schedule.setStorageSpace(w.getStorageSpace());
+            lineScheduleService.save(schedule);
+        }
+
     }
 
 }

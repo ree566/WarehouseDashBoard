@@ -13,6 +13,8 @@
 <script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
 <script src="<c:url value="/libs/mobile-detect/mobile-detect.min.js" />"></script>
 
+<script src="<c:url value="/libs/block-ui/jquery.blockUI.js" />"></script>
+
 <style>
     #dashboard >  .po-list{
         border: 1px solid;
@@ -46,13 +48,39 @@
 
 <script>
     $(function () {
+
         var po = $(".po").detach();
         var area_select = $("#area-select");
         var dashboard = $("#dashboard>div");
         var floor_id = '${param.floor_id}';
         var group_id = '${param.group_id}';
-        var md = new MobileDetect(window.navigator.userAgent);
-        console.log(md.mobile());
+        var warehouseData = [];
+
+        $(document).ajaxSend(function () {
+            block();//Block the screen when ajax is sending, Prevent form submit repeatly.
+        });
+        $(document).ajaxComplete(function () {
+            $.unblockUI();//Unblock the ajax when success
+        });
+
+        function block() {
+            $.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .5,
+                    color: '#fff'
+                },
+                fadeIn: 0,
+                overlayCSS: {
+                    backgroundColor: '#FFFFFF',
+                    opacity: .3
+                }
+            });
+        }
 
         function setStorageSpaceGroup() {
             var groupAreas = $("#nav-links");
@@ -81,10 +109,34 @@
             });
         }
 
+        function setStorageSpaceModOptions() {
+            $.ajax({
+                type: "GET",
+                url: "<c:url value="/StorageSpaceController/findByFloor" />",
+                data: {
+                    id: floor_id
+                },
+                dataType: "json",
+                success: function (response) {
+                    var areas = response;
+                    var sel = po.find(".storageSpace");
+					sel.append("<option value='-1'>請選擇線別</option>");
+                    for (var i = 0; i < areas.length; i++) {
+                        var str = areas[i];
+                        sel.append("<option value='" + str.id + "'>" + str.name + "</option>");
+                    }
+                    sel.hide();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.responseText);
+                }
+            });
+        }
+
         function setStorageSpace() {
             $.ajax({
                 type: "GET",
-                url: "<c:url value="/StorageSpaceController/findAll" />",
+                url: "<c:url value="/StorageSpaceController/findByStorageSpaceGroup" />",
                 data: {
                     id: group_id
                 },
@@ -133,6 +185,7 @@
         }
 
         function getWarehouse() {
+            warehouseData = [];
             $.ajax({
                 type: "GET",
                 url: "<c:url value="/WarehouseController/findAll" />",
@@ -145,18 +198,22 @@
 
                     for (var i = 0; i < data.length; i++) {
                         var d = data[i];
+                        warehouseData["id" + d.id] = d;
                         var clone_po = po.clone();
                         clone_po.find(".name").html(d.po);
                         clone_po.find(".data-id").val(d.id);
                         var sche = d.lineSchedule;
                         var target = $("#po_content_" + d.storageSpace.id);
                         if (sche != null) {
+                            var nameField = clone_po.find(".name");
                             clone_po.addClass("text-success");
+
+                            nameField.append(' / <small>' + sche.modelName + '</small> ');
                             if (sche.line != null) {
-                                clone_po.find(".name").append(" (" + sche.line.name + ") ");
+                                nameField.append(" (" + sche.line.name + ") ");
                             }
                             if (sche.remark != null && sche.remark.trim() != '') {
-                                clone_po.find(".name").append("※");
+                                nameField.append("※");
                             }
                         }
                         target.append(clone_po);
@@ -173,6 +230,8 @@
             $(".po_content").html("");
             getWarehouse();
         }
+
+        setStorageSpaceModOptions();
 
         $("#add-po").click(function () {
             if (text == "") {
@@ -203,18 +262,59 @@
         });
 
         $(document).on("click", ".pull-out", function () {
-            var po = $(this).parents(".po").find(".name").html();
-            if (confirm("Confirm pull out " + po + " ?")) {
-                var data_id = $(this).parents(".po").find(".data-id").val();
+            var id = $(this).parents(".po").find(".data-id").val();
+            var data = warehouseData["id" + id];
+            if (confirm("Confirm pull out " + data.po + " ?")) {
                 $.ajax({
                     type: "POST",
                     url: "<c:url value="/WarehouseController/delete" />",
                     data: {
-                        id: data_id
+                        id: id
                     },
                     dataType: "html",
                     success: function (response) {
                         ws.send("REMOVE");
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.responseText);
+                    }
+                });
+            }
+        });
+
+        $(document).on("click", ".change-area", function () {
+            $(this).hide();
+            $(this).parent().find(".storageSpace").show();
+        });
+
+        $(document).on("focusout", ".storageSpace", function () {
+            $(this).hide();
+            $(".change-area").show();
+        });
+
+        $(document).on("change", ".storageSpace", function () {
+            var id = $(this).parents(".po").find(".data-id").val();
+            var data = warehouseData["id" + id];
+            var sel = $(this).val();
+            var selText = $(this).children("option:selected").text();
+			
+			if(sel == -1){
+				return false;
+			}
+
+            if (confirm("Change area to " + selText + "?(" + data.po + ")")) {
+
+                $.ajax({
+                    type: "POST",
+                    url: "<c:url value="/WarehouseController/changeStorageSpace" />",
+                    data: {
+                        warehouseId: id,
+                        storageSpaceId: sel
+                    },
+                    dataType: "json",
+                    success: function (response) {
+                        alert("success");
+                        ws.send("ADD");
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         alert(xhr.responseText);
@@ -330,8 +430,11 @@
         <div class="po col-12">
             <div class="name"></div>
             <input type="hidden" value="" class="data-id">
+            <input type="hidden" value="" class="data-po">
             <div class="widget">
                 <input type="button" class="pull-out" value="Pull out" />
+                <input type="button" class="change-area" value="Change area" />
+                <select class="storageSpace"></select>
             </div>
         </div>
 

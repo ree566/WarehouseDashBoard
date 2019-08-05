@@ -51,7 +51,7 @@ public class TestWebservice {
 
         DateTime nextDay = workDateUtils.findNextDay();
 
-        List<LineSchedule> l = lineScheduleRepo.findByCreateDateBetween(nextDay.toDate(), nextDay.plusDays(1).toDate());
+        List<LineSchedule> l = lineScheduleRepo.findByOnBoardDateBetween(nextDay.toDate(), nextDay.plusDays(1).toDate());
 
         l.forEach(s -> {
             p.setITEMNO(s.getModelName());

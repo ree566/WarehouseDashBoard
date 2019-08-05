@@ -5,6 +5,7 @@
  */
 package com.advantech.service;
 
+import com.advantech.model.Floor;
 import com.advantech.model.StorageSpace;
 import com.advantech.model.StorageSpaceGroup;
 import com.advantech.repo.StorageSpaceRepository;
@@ -31,6 +32,10 @@ public class StorageSpaceService {
 
     public Optional<StorageSpace> findById(Integer id) {
         return repo.findById(id);
+    }
+
+    public List<StorageSpace> findByFloor(Floor f) {
+        return repo.findByFloor(f);
     }
 
     public List<StorageSpace> findByStorageSpaceGroupOrderByName(StorageSpaceGroup group) {

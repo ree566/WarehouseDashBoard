@@ -28,4 +28,8 @@ public class LineService {
         return repo.findByFloor(floor);
     }
 
+    public Line getOne(Integer id) {
+        return repo.getOne(id);
+    }
+
 }

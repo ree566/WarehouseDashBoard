@@ -115,8 +115,7 @@
 
                 <ul class="list-unstyled components">
                     <!--<p>Dummy Heading</p>-->
-                    <li>
-                        <a href="layout.jsp?content=warehouse&floor_id=1#">拉料 - 5F</a>
+                    <li class="active">
                         <!--<a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>-->
                         <!--                        <ul class="collapse list-unstyled" id="homeSubmenu">
                                                     <li>
@@ -129,10 +128,32 @@
                                                         <a href="#">Home 3</a>
                                                     </li>
                                                 </ul>-->
+                        <a href="#sub1" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">拉料</a>
+                        <ul class="collapse list-unstyled show" id="sub1">
+                            <li>
+                                <a href="layout.jsp?content=warehouse&floor_id=1#">5F</a>
+                            </li>
+                            <li>
+                                <a href="layout.jsp?content=warehouse&floor_id=2#">6F</a>
+                            </li>
+                            <li>
+                                <a href="layout.jsp?content=warehouse&floor_id=3#">7F</a>
+                            </li>
+                        </ul>
                     </li>
                     <li>
-                        <a href="<c:url value="layout.jsp?content=lineSchedule&floor_id=1#" />">備料 - 5F</a>
-                        <!--<a href="#pageSubmenu">Pages</a>-->
+                        <a href="#sub2" class="dropdown-toggle" data-toggle="collapse" aria-expanded="true">備料</a>
+                        <ul class="collapse list-unstyled show" id="sub2">
+                            <li>
+                                <a href="layout.jsp?content=lineSchedule&floor_id=1#">5F</a>
+                            </li>
+                            <li>
+                                <a href="layout.jsp?content=lineSchedule&floor_id=2#">6F</a>
+                            </li>
+                            <li>
+                                <a href="layout.jsp?content=lineSchedule&floor_id=3#">7F</a>
+                            </li>
+                        </ul>
                     </li>
                     <!--                    <li>
                                             <a href="#">Portfolio</a>
@@ -140,21 +161,6 @@
                                         <li>
                                             <a href="#">Contact</a>
                                         </li>-->
-                    <li>
-                        <a href="layout.jsp?content=warehouse&floor_id=2#">拉料 - 6F</a>
-                    </li>
-                    <li>
-                        <a href="<c:url value="layout.jsp?content=lineSchedule&floor_id=2#" />">備料 - 6F</a>
-                    </li>
-                    <li>
-                        <a href="layout.jsp?content=warehouse&floor_id=3#">拉料 - 7F</a>
-                    </li>
-                    <li>
-                        <a href="<c:url value="layout.jsp?content=lineSchedule&floor_id=3#" />">備料 - 7F</a>
-                    </li>
-                    <li>
-                        <a href="<c:url value="http://172.20.131.208/TWM3M/KB.aspx" />">物料確校系統</a>
-                    </li>
                     <li>
                         <a href="<c:url value="http://172.20.131.208/SAP/Login.aspx " />">拉備料系統</a>
                     </li>

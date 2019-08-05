@@ -39,6 +39,7 @@ public class LineSchedule implements java.io.Serializable {
     private StorageSpace storageSpace;
     private LineScheduleStatus lineScheduleStatus;
     private Date createDate;
+    private Date onBoardDate;
     private String remark;
     private Integer lineSchedulePriorityOrder;
 
@@ -151,6 +152,18 @@ public class LineSchedule implements java.io.Serializable {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'", iso = DateTimeFormat.ISO.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'", timezone = "GMT+8")
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "onboard_date", length = 23)
+    public Date getOnBoardDate() {
+        return onBoardDate;
+    }
+
+    public void setOnBoardDate(Date onBoardDate) {
+        this.onBoardDate = onBoardDate;
     }
 
     @Column(name = "remark")

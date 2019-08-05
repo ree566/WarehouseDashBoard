@@ -51,14 +51,14 @@ public class HandleUnfinishedSchedule {
         DateTime eD = new DateTime(nextDay).withTime(23, 59, 0, 0);
 
         //Find un-finished po schedules
-        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndCreateDateBetween(onboard, sD.toDate(), eD.toDate());
+        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndOnBoardDateBetween(onboard, sD.toDate(), eD.toDate());
 
         logger.info("Update " + lineSchedules.size() + " datas.");
 
         DateTime nextTargetDay = new DateTime(nextDay).plusDays(1);
 
         lineSchedules.forEach(s -> {
-            s.setCreateDate(nextTargetDay.toDate());
+            s.setOnBoardDate(nextTargetDay.toDate());
         });
 
         lineScheduleRepo.saveAll(lineSchedules);
