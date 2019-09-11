@@ -61,7 +61,7 @@ public class SyncData {
 
         List<Floor> floors = floorRepo.findAll();
         LineScheduleStatus defaultStatus = statusRepo.getOne(1);
-        LineScheduleStatus onboard = statusRepo.getOne(4);
+        LineScheduleStatus inWarehouse = statusRepo.getOne(2);
 
         List<RemoteSchedule> remoteSchedules = lineScheduleRepo.getPrepareSchedule(nextDay.toDate());
         if (remoteSchedules.size() < 0) {
@@ -99,7 +99,11 @@ public class SyncData {
                 lineSchedules.add(sche);
             }
         });
+        
+        //object can't references an unsaved transient instance
+        lineScheduleRepo.saveAll(lineSchedules);
 
+        List<Warehouse> needUpdateWarehouses = new ArrayList();
         //When schedule's po is already in warehouse, set status to complete.
         floors.forEach(f -> {
             List<Warehouse> warehouses = warehouseRepo.findByFloorAndFlag(f, 0);
@@ -109,21 +113,20 @@ public class SyncData {
                         .findFirst()
                         .orElse(null);
                 if (s != null) {
-                    s.setLineScheduleStatus(onboard);
+                    w.setLineSchedule(s);
+                    needUpdateWarehouses.add(w);
+                    s.setLineScheduleStatus(inWarehouse);
                 }
             });
         });
 
+        if (!needUpdateWarehouses.isEmpty()) {
+            logger.info("Begin update " + needUpdateWarehouses.size() + " data in warehouse");
+            warehouseRepo.saveAll(needUpdateWarehouses);
+        }
+        
         logger.info("Begin save " + lineSchedules.size() + " data into lineSchedule");
-//        HibernateObjectPrinter.print(lineSchedules);
         lineScheduleRepo.saveAll(lineSchedules);
-    }
-
-    private boolean isScheduleExists(DateTime d) {
-        DateTime d1 = new DateTime(d).withTime(0, 0, 0, 0);
-        DateTime d2 = new DateTime(d).withTime(23, 0, 0, 0);
-        List l = lineScheduleRepo.findByOnBoardDateBetween(d1.toDate(), d2.toDate());
-        return !l.isEmpty();
     }
 
     private String combinePartMappingVarietyMessages(List<PartMappingVariety> l) {

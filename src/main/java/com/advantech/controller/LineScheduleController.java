@@ -8,7 +8,6 @@ package com.advantech.controller;
 import com.advantech.helper.SecurityPropertiesUtils;
 import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.Floor;
-import com.advantech.model.Line;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
 import com.advantech.model.LineSchedule_;
@@ -16,10 +15,7 @@ import com.advantech.model.User;
 import com.advantech.service.FloorService;
 import com.advantech.service.LineScheduleService;
 import com.advantech.service.LineScheduleStatusService;
-import com.advantech.service.LineService;
 import java.util.Date;
-import java.util.List;
-import static java.util.stream.Collectors.toList;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
@@ -34,7 +30,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,30 +42,26 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/LineScheduleController")
 public class LineScheduleController extends CrudController<LineSchedule> {
-    
+
     @Autowired
     private LineScheduleService lineScheduleService;
-    
+
     @Autowired
     private FloorService floorService;
-    
+
     @Autowired
     private WorkDateUtils workDateUtils;
-    
-    @Autowired
-    private LineService lineService;
-    
+
     @Autowired
     private LineScheduleStatusService lineScheduleStatusService;
-    
+
     @ResponseBody
     @RequestMapping(value = "findAll", method = {RequestMethod.GET})
     protected DataTablesOutput<LineSchedule> findAll(
             @Valid DataTablesInput input,
             @RequestParam(required = false) Integer floor_id,
             HttpServletRequest request) throws Exception {
-        
-        DateTime nextDay = workDateUtils.findNextDay();
+
         Floor f;
         if (floor_id == null) {
             User user = SecurityPropertiesUtils.retrieveAndCheckUserInSession();
@@ -78,15 +69,11 @@ public class LineScheduleController extends CrudController<LineSchedule> {
         } else {
             f = floorService.getOne(floor_id);
         }
-        
-        return lineScheduleService.findAll(input, (Root<LineSchedule> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
-            Path<Floor> entryPath = root.get(LineSchedule_.FLOOR);
-            Path<Date> datePath = root.get(LineSchedule_.ON_BOARD_DATE);
-            return cb.and(cb.equal(entryPath, f), cb.equal(datePath, nextDay.toDate()));
-        });
-        
+
+        return lineScheduleService.findSchedule(input, f);
+
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "findOnBoardByDateBetween", method = {RequestMethod.GET})
     protected DataTablesOutput<LineSchedule> findOnBoardByDateBetween(
@@ -95,19 +82,19 @@ public class LineScheduleController extends CrudController<LineSchedule> {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'") DateTime startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'kk:mm:ss.SSS'Z'") DateTime endDate,
             HttpServletRequest request) throws Exception {
-        
+
         Floor f = floorService.getOne(floor_id);
-        
+
         LineScheduleStatus onBoard = lineScheduleStatusService.getOne(4);
         return lineScheduleService.findAll(input, (Root<LineSchedule> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
             Path<Floor> entryPath = root.get(LineSchedule_.FLOOR);
-            Path<Date> datePath = root.get(LineSchedule_.ON_BOARD_DATE);
+            Path<Date> datePath = root.get(LineSchedule_.CREATE_DATE);
             Path<LineScheduleStatus> statePath = root.get(LineSchedule_.LINE_SCHEDULE_STATUS);
             return cb.and(cb.equal(entryPath, f), cb.equal(statePath, onBoard), cb.between(datePath, startDate.toDate(), endDate.toDate()));
         });
-        
+
     }
-    
+
     @Override
     @ResponseBody
     @RequestMapping(value = INSERT_URL, method = {RequestMethod.POST})
@@ -115,7 +102,7 @@ public class LineScheduleController extends CrudController<LineSchedule> {
         lineScheduleService.save(pojo);
         return serverResponse(SUCCESS_MESSAGE);
     }
-    
+
     @Override
     @ResponseBody
     @RequestMapping(value = UPDATE_URL, method = {RequestMethod.POST})
@@ -123,7 +110,7 @@ public class LineScheduleController extends CrudController<LineSchedule> {
         lineScheduleService.save(pojo);
         return serverResponse(SUCCESS_MESSAGE);
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "updateOnboard", method = {RequestMethod.POST})
     protected ResponseEntity updateOnboard(LineSchedule pojo, BindingResult bindingResult) throws Exception {
@@ -131,7 +118,7 @@ public class LineScheduleController extends CrudController<LineSchedule> {
         lineScheduleService.save(pojo);
         return serverResponse(SUCCESS_MESSAGE);
     }
-    
+
     @Override
     @ResponseBody
     @RequestMapping(value = DELETE_URL, method = {RequestMethod.POST})
@@ -140,6 +127,5 @@ public class LineScheduleController extends CrudController<LineSchedule> {
         lineScheduleService.delete(pojo);
         return serverResponse(SUCCESS_MESSAGE);
     }
-    
-    
+
 }

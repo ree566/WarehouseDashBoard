@@ -9,6 +9,7 @@
 <title>${initParam.pageTitle}</title>
 <link href="<c:url value="/libs/datatables.net-dt/jquery.dataTables.css" />" rel="stylesheet">
 <link href="<c:url value="/libs/datatables.net-fixedheader-dt/fixedHeader.dataTables.css" />" rel="stylesheet">
+<link href="<c:url value="/libs/jquery-ui/jquery-ui.css" />"  rel="stylesheet">
 
 <style>
     body.dragging, body.dragging * {
@@ -69,7 +70,7 @@
 </style>
 
 <script src="<c:url value="/libs/jQuery/jquery.js" />"></script> 
-<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+<script src="<c:url value="/libs/jquery-ui/jquery-ui.min.js" />"></script>
 <script src="<c:url value="/libs/bootstrap/bootstrap.js" />"></script>
 <script src="<c:url value="/libs/jquery-sortable/jquery-sortable-min.js" />"></script>
 <script src="<c:url value="/libs/datatables.net/jquery.dataTables.js" />"></script>
@@ -159,6 +160,21 @@
             table2.ajax.reload();
         });
 
+        var input_filter_value;
+        var input_filter_timeout = 1500;
+        $("div.dataTables_filter input").unbind();
+        $("div.dataTables_filter input").keyup(function (e) {
+            input_filter_value = this.value;
+            clearTimeout(input_filter_timeout);
+            input_filter_timeout = setTimeout(function () {
+                table.search(input_filter_value).draw();
+            }, table.context[0].searchDelay);
+
+            // if (e.keyCode == 13) {
+            //  usertable.search( this.value ).draw();
+            // }
+        });
+
         function getDate(element) {
             var date;
             try {
@@ -227,8 +243,8 @@
                     {data: "lineScheduleStatus.name", title: "狀態"},
                     {data: "storageSpace.name", title: "位置"},
                     {data: "floor.name", title: "樓層"},
-                    {data: "createDate", title: "原始上線日"},
-                    {data: "onBoardDate", title: "預計上線日"}
+                    {data: "createDate", title: "日期"},
+                    {data: "onBoardDate", title: "預計上線日", visible: false}
                 ],
                 "columnDefs": [
                     {
@@ -342,6 +358,9 @@
                         success: function (response) {
                             alert("success");
                             refreshTable(table);
+                            if (index == 4) {
+                                ws.send("ADD");
+                            }
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             alert(xhr.responseText);
@@ -662,7 +681,7 @@
     </div>
     <div class="row">
         <div class="col">
-            <h3>本日上線排程</h3>
+            <h3>拉備料排程</h3>
             <table id="favourable" class="table table-sm table-bordered sorted_table table-responsive-sm">
             </table>
         </div>

@@ -22,7 +22,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0">
         <meta name="description" content="">
         <meta name="author" content="">
-        <link rel="icon" href="../../favicon.ico">
+        <link rel="shortcut icon" href="<c:url value="/images/favicon.ico" />"/>
 
         <!-- Bootstrap core CSS -->
         <link href="<c:url value="/libs/bootstrap/bootstrap.css" />" rel="stylesheet">
@@ -139,6 +139,11 @@
                             <li>
                                 <a href="layout.jsp?content=warehouse&floor_id=3#">7F</a>
                             </li>
+                            <c:if test="${isAdmin}">
+                                <li>
+                                    <a href="layout.jsp?content=warehouse&floor_id=5#">TEST_F</a>
+                                </li>
+                            </c:if>
                         </ul>
                     </li>
                     <li>
@@ -153,6 +158,11 @@
                             <li>
                                 <a href="layout.jsp?content=lineSchedule&floor_id=3#">7F</a>
                             </li>
+                            <c:if test="${isAdmin}">
+                                <li>
+                                <a href="layout.jsp?content=lineSchedule&floor_id=5#">TEST_F</a>
+                            </li>
+                            </c:if>
                         </ul>
                     </li>
                     <!--                    <li>

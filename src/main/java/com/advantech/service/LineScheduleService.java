@@ -5,11 +5,11 @@
  */
 package com.advantech.service;
 
-import com.advantech.helper.WorkDateUtils;
 import com.advantech.model.Floor;
 import com.advantech.model.Line;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
+import com.advantech.model.LineSchedule_;
 import com.advantech.model.StorageSpace;
 import com.advantech.model.Warehouse;
 import com.advantech.repo.LineScheduleRepository;
@@ -17,6 +17,10 @@ import static com.google.common.base.Preconditions.checkState;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
@@ -40,9 +44,6 @@ public class LineScheduleService {
     private LineScheduleStatusService stateService;
 
     @Autowired
-    private WorkDateUtils workDateUtils;
-
-    @Autowired
     private WarehouseService warehouseService;
 
     @Autowired
@@ -61,6 +62,21 @@ public class LineScheduleService {
 
     public LineSchedule getOne(Integer id) {
         return repo.getOne(id);
+    }
+
+    public DataTablesOutput<LineSchedule> findSchedule(DataTablesInput input, Floor f) {
+        LineScheduleStatus onboard = stateService.getOne(4);
+        DateTime today = new DateTime().withTime(0, 0, 0, 0);
+
+        return repo.findAll(input, (Root<LineSchedule> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            Path<Floor> entryPath = root.get(LineSchedule_.FLOOR);
+            Path<Date> datePath = root.get(LineSchedule_.CREATE_DATE);
+            Path<LineScheduleStatus> statusPath = root.get(LineSchedule_.LINE_SCHEDULE_STATUS);
+            return cb.and(
+                    cb.equal(entryPath, f),
+                    cb.notEqual(statusPath, onboard)
+            );
+        });
     }
 
     public <S extends LineSchedule> S save(S s) {
@@ -91,13 +107,10 @@ public class LineScheduleService {
                     warehouseService.save(w);
                 }
             }
-            
+
             if (s.getLineScheduleStatus().getId() != onBoard.getId()) {
-                DateTime nextDay = workDateUtils.findNextDay();
-                DateTime sD = new DateTime(nextDay).withTime(0, 0, 0, 0);
-                DateTime eD = new DateTime(nextDay).withTime(23, 59, 59, 0);
                 Line line = lineService.getOne(s.getLine().getId());
-                List<LineSchedule> dataInLine = repo.findByLineAndOnBoardDateBetweenAndLineScheduleStatusNotAndLineSchedulePriorityOrderNotNull(line, sD.toDate(), eD.toDate(), onBoard);
+                List<LineSchedule> dataInLine = this.findByLine(line);
                 int priorityOrder = 1;
                 if (!dataInLine.isEmpty()) {
                     Integer maxPriorityOrder = dataInLine.stream().mapToInt(LineSchedule::getLineSchedulePriorityOrder).max().getAsInt();
@@ -109,6 +122,25 @@ public class LineScheduleService {
 
         }
         return repo.save(s);
+    }
+
+    private List<LineSchedule> findByLine(Line line) {
+        DataTablesInput input = new DataTablesInput();
+        input.setLength(-1);
+
+        LineScheduleStatus onBoard = stateService.getOne(4);
+
+        return repo.findAll(input, (Root<LineSchedule> root, CriteriaQuery<?> cq, CriteriaBuilder cb) -> {
+            Path<Line> linePath = root.get(LineSchedule_.LINE);
+            Path<LineScheduleStatus> statusPath = root.get(LineSchedule_.LINE_SCHEDULE_STATUS);
+            Path<Integer> priorityPath = root.get(LineSchedule_.LINE_SCHEDULE_PRIORITY_ORDER);
+
+            return cb.and(
+                    cb.equal(linePath, line),
+                    cb.notEqual(statusPath, onBoard),
+                    cb.isNotNull(priorityPath)
+            );
+        }).getData();
     }
 
     private boolean isLineChanged(LineSchedule pojo) {
@@ -138,21 +170,10 @@ public class LineScheduleService {
         return !Objects.equals(prevPriorityOrder, priorityOrder);
     }
 
-    public List<LineSchedule> findByLine(Line line) {
-        LineScheduleStatus onBoard = stateService.getOne(4);
-        DateTime nextDay = workDateUtils.findNextDay();
-        DateTime sD = new DateTime(nextDay).withTime(0, 0, 0, 0);
-        DateTime eD = new DateTime(nextDay).withTime(23, 59, 59, 0);
-        return repo.findByLineAndOnBoardDateBetweenAndLineScheduleStatusNot(line, sD.toDate(), eD.toDate(), onBoard);
-    }
-
     public void updateStatus(Warehouse w, LineScheduleStatus status) {
-        DateTime nextDay = workDateUtils.findNextDay();
-        DateTime sD = new DateTime(nextDay).withTime(0, 0, 0, 0);
-        DateTime eD = new DateTime(nextDay).withTime(23, 59, 59, 0);
         LineScheduleStatus onBoard = stateService.getOne(4);
         Floor f = getWarehouseFloor(w);
-        LineSchedule schedule = repo.findFirstByPoAndFloorAndOnBoardDateBetweenAndLineScheduleStatusNot(w.getPo(), f, sD.toDate(), eD.toDate(), onBoard);
+        LineSchedule schedule = this.findFirstByPoAndFloorAndLineScheduleStatusNot(w.getPo(), f, onBoard);
         if (schedule != null) {
             checkState(!(schedule.getLine() == null && status.getId() == 4), "Can't pull out when po's line is not setting");
             schedule.setLineScheduleStatus(status);
@@ -167,8 +188,8 @@ public class LineScheduleService {
         }
     }
 
-    public LineSchedule findFirstByPoAndFloorAndOnBoardDateBetweenAndLineScheduleStatusNot(String po, Floor f, Date sD, Date eD, LineScheduleStatus status) {
-        return repo.findFirstByPoAndFloorAndOnBoardDateBetweenAndLineScheduleStatusNot(po, f, sD, eD, status);
+    public LineSchedule findFirstByPoAndFloorAndLineScheduleStatusNot(String po, Floor f, LineScheduleStatus status) {
+        return repo.findFirstByPoAndFloorAndLineScheduleStatusNot(po, f, status);
     }
 
     private Floor getWarehouseFloor(Warehouse w) {

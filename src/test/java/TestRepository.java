@@ -228,14 +228,14 @@ public class TestRepository {
     @Transactional
     @Rollback(true)
     public void testfindByLineScheduleStatusNotAndOnBoardDateBetween(){
-        LineScheduleStatus onboard = statusRepo.getOne(4);
-        DateTime sD = new DateTime().withHourOfDay(0).withMinuteOfHour(0);
-        DateTime eD = new DateTime().withHourOfDay(23).withMinuteOfHour(59);
-
-        //Find un-finished po schedules
-        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndOnBoardDateBetween(onboard, sD.toDate(), eD.toDate());
-
-        HibernateObjectPrinter.print(lineSchedules);
+//        LineScheduleStatus onboard = statusRepo.getOne(4);
+//        DateTime sD = new DateTime().withHourOfDay(0).withMinuteOfHour(0);
+//        DateTime eD = new DateTime().withHourOfDay(23).withMinuteOfHour(59);
+//
+//        //Find un-finished po schedules
+//        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndOnBoardDateBetween(onboard, sD.toDate(), eD.toDate());
+//
+//        HibernateObjectPrinter.print(lineSchedules);
     }
     
     @Test

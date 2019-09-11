@@ -46,24 +46,7 @@ public class TestWebservice {
     @Transactional
     @Rollback(false)
     public void testPartMappingVarietyQueryPort() throws Exception {
-        PartMappingVarietyQueryRoot root = new PartMappingVarietyQueryRoot();
-        PartMappingVarietyQueryRoot.PARTMAPPINGVARIETY p = root.getPARTMAPPINGVARIETY();
 
-        DateTime nextDay = workDateUtils.findNextDay();
-
-        List<LineSchedule> l = lineScheduleRepo.findByOnBoardDateBetween(nextDay.toDate(), nextDay.plusDays(1).toDate());
-
-        l.forEach(s -> {
-            p.setITEMNO(s.getModelName());
-            try {
-                List varietys = partMappingVarietyQueryPort.query(root);
-                String remark = this.combinePartMappingVarietyMessages(varietys);
-                s.setRemark(remark);
-            } catch (Exception ex) {
-                System.out.println(ex);
-            }
-        });
-        lineScheduleRepo.saveAll(l);
     }
 
     private String combinePartMappingVarietyMessages(List<PartMappingVariety> l) {

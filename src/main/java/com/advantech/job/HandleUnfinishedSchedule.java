@@ -6,11 +6,16 @@
 package com.advantech.job;
 
 import com.advantech.helper.WorkDateUtils;
+import com.advantech.model.Line;
 import com.advantech.model.LineSchedule;
 import com.advantech.model.LineScheduleStatus;
+import com.advantech.repo.LineRepository;
 import com.advantech.repo.LineScheduleRepository;
 import com.advantech.repo.LineScheduleStatusRepository;
+import static com.google.common.collect.Lists.newArrayList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,33 +42,36 @@ public class HandleUnfinishedSchedule {
     @Autowired
     private WorkDateUtils workDateUtils;
 
+    @Autowired
+    private LineRepository lineRepo;
+
     @Transactional
     public void execute() {
 
-        logger.info("Begin update unfinished schedule date to next day.");
-
-        //Update lineSchedule to plus two days
-        DateTime nextDay = workDateUtils.findNextDay();
-
-        //Find today unfinished job and set date to nextDay
         LineScheduleStatus onboard = statusRepo.getOne(4);
-        DateTime sD = new DateTime(nextDay).withTime(0, 0, 0, 0);
-        DateTime eD = new DateTime(nextDay).withTime(23, 59, 0, 0);
 
-        //Find un-finished po schedules
-        List<LineSchedule> lineSchedules = lineScheduleRepo.findByLineScheduleStatusNotAndOnBoardDateBetween(onboard, sD.toDate(), eD.toDate());
+        //Auto update status to onBoard when user set data to spec line
+        List lineIds = newArrayList(29, 30, 31, 32);
+        List<Line> lines = lineRepo.findAllById(lineIds);
 
-        logger.info("Update " + lineSchedules.size() + " datas.");
+        List<LineSchedule> needUpdateSchedule = new ArrayList();
 
-        DateTime nextTargetDay = new DateTime(nextDay).plusDays(1);
+        lines.forEach(l -> {
+            List<LineSchedule> lineSchedules = lineScheduleRepo.findByLine(l);
+            lineSchedules.forEach(sche -> {
+                if (Objects.equals(sche.getLineScheduleStatus(), onboard)) {
+                    sche.setLineScheduleStatus(onboard);
+                    needUpdateSchedule.add(sche);
+                }
+            });
 
-        lineSchedules.forEach(s -> {
-            s.setOnBoardDate(nextTargetDay.toDate());
         });
 
-        lineScheduleRepo.saveAll(lineSchedules);
-
-        logger.info("Update finish.");
+        if (!needUpdateSchedule.isEmpty()) {
+            logger.info("Update " + needUpdateSchedule.size() + " datas.");
+            lineScheduleRepo.saveAll(needUpdateSchedule);
+            logger.info("Update finish.");
+        }
     }
 
 }

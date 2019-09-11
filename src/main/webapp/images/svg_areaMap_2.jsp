@@ -9,12 +9,10 @@
     <image overflow="visible" width="502" height="289" xlink:href="<c:url value="/images/6f_map.png" />"></image>
     <g id="items" class="6f">
         <g id="items" class="">
-            <polygon id="polygon-6F_A1" class="polygon" points=" 345.23,223.01 345.71,239.92 392.10,240.89 392.58,224.46" transform="translate(0,0) scale(1,1)"></polygon>
-            <polygon id="polygon-6F_A2" class="polygon" points=" 447.67,57.26 448.64,72.73 473.28,72.73 472.80,57.74" transform="translate(0,0) scale(1,1)"></polygon>
-            <polygon id="polygon-6F_A3" class="polygon" points=" 447.19,39.38 448.15,53.88 472.31,54.36 472.31,40.35" transform="translate(0,0) scale(1,1)"></polygon>
-            <polygon id="polygon-6F_C1" class="polygon" points=" 201.23,208.51 199.78,276.16 211.86,276.16 212.34,207.54" transform="translate(0,0) scale(1,1)"></polygon>
-            <polygon id="polygon-6F_C2" class="polygon" points=" 220.07,198.85 220.07,267.46 230.22,267.95 230.22,198.85" transform="translate(0,0) scale(1,1)"></polygon>
-            <polygon id="polygon-6F_C3" class="polygon" points=" 238.44,198.85 237.95,267.46 248.58,266.98 249.07,199.33" transform="translate(0,0) scale(1,1)"></polygon>
+            <polygon id="polygon-1" class="polygon" points=" 344.43,222.18 344.81,241.89 393.12,242.02 393.12,222.54" transform="translate(0,0) scale(1,1)"></polygon>
+            <polygon id="polygon-2" class="polygon" points=" 448.05,55.39 448.01,72.44 474.38,72.60 474.33,55.91" transform="translate(0,0) scale(1,1)"></polygon>
+            <polygon id="polygon-3" class="polygon" points=" 448.15,39.05 448.15,55.27 473.75,55.27 473.64,39.38" transform="translate(0,0) scale(1,1)"></polygon>
+            <polygon id="polygon-4" class="polygon" points=" 219.81,197.53 219.65,269.86 231.15,270.16 230.84,197.67" transform="translate(0,0) scale(1,1)"></polygon>
         </g>
     </g>
 </svg>
