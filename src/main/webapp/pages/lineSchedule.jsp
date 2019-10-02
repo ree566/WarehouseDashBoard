@@ -159,21 +159,23 @@
             console.log($("#from").val());
             table2.ajax.reload();
         });
-
-        var input_filter_value;
-        var input_filter_timeout = 1500;
-        $("div.dataTables_filter input").unbind();
-        $("div.dataTables_filter input").keyup(function (e) {
-            input_filter_value = this.value;
-            clearTimeout(input_filter_timeout);
-            input_filter_timeout = setTimeout(function () {
-                table.search(input_filter_value).draw();
-            }, table.context[0].searchDelay);
-
-            // if (e.keyCode == 13) {
-            //  usertable.search( this.value ).draw();
-            // }
-        });
+		
+		var input_filter_value;
+		var input_filter_timeout = 1500;
+		$("div.dataTables_filter input").unbind();
+		$("div.dataTables_filter input").keyup( function (e) {
+			var p = $(this).parents(".dataTables_filter");
+			var tb = p.attr("id") == "favourable_filter" ? table : table2;
+			input_filter_value=this.value;
+			clearTimeout(input_filter_timeout);
+			input_filter_timeout=setTimeout(function(){
+				tb.search( input_filter_value ).draw();
+			}, tb.context[0].searchDelay);
+	 
+			// if (e.keyCode == 13) {
+			//  usertable.search( this.value ).draw();
+			// }
+		});
 
         function getDate(element) {
             var date;
@@ -327,7 +329,8 @@
                 "paginate": true,
                 "select": true,
                 "searchDelay": 1000,
-                "ordering": true
+                "ordering": true,
+				"searchDelay": 1500
             });
 
             table.on('error.dt', function (e, settings, techNote, message) {
@@ -438,8 +441,8 @@
                     {data: "lineScheduleStatus.name", title: "狀態"},
                     {data: "storageSpace.name", title: "位置"},
                     {data: "floor.name", title: "樓層"},
-                    {data: "createDate", title: "原始上線日"},
-                    {data: "onBoardDate", title: "預計上線日"}
+                    {data: "createDate", title: "日期"},
+                    {data: "onBoardDate", title: "預計上線日", visible: false}
                 ],
                 "columnDefs": [
                     {

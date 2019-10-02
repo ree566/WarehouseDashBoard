@@ -15,7 +15,6 @@
         <polygon id="polygon-6" class="polygon" points=" 462.74,82.60 462.90,98.07 485.49,98.53 485.33,83.36" transform="translate(0,0) scale(1,1)"></polygon>
         <polygon id="polygon-7" class="polygon" points=" 358.55,214.95 358.29,258.60 384.59,258.55 384.63,215.78" transform="translate(0,0) scale(1,1)"></polygon>
         <polygon id="polygon-9" class="polygon" points=" 249.11,186.05 249.11,273.48 269.63,273.48 269.12,186.64" transform="translate(0,0) scale(1,1)"></polygon>
-        <polygon id="polygon-10" class="polygon" points=" 222.68,194.70 221.63,259.69 242.60,259.69 242.86,194.17" transform="translate(0,0) scale(1,1)"></polygon>
         <polygon id="polygon-11" class="polygon" points=" 13.63,24.38 13.63,73.06 25.71,74.19 24.95,25.13" transform="translate(0,0) scale(1,1)"></polygon>
     </g>
 </svg>
