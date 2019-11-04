@@ -34,7 +34,7 @@ public class TestQuartzJob {
 
     @Test
     @Transactional
-    @Rollback(false)
+    @Rollback(true)
     public void testSyncData() {
         syncData.execute();
     }

@@ -21,6 +21,7 @@ import com.advantech.webservice.unmarshallclass.PartMappingVariety;
 import java.util.ArrayList;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
+import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,7 @@ public class SyncData {
         PartMappingVarietyQueryRoot root = new PartMappingVarietyQueryRoot();
         PartMappingVarietyQueryRoot.PARTMAPPINGVARIETY pmv = root.getPARTMAPPINGVARIETY();
 
+        //Set RemoteSchedule to LineSchedule form
         remoteSchedules.forEach(s -> {
             String floorName = s.getFloorName();
             if ("M2".equals(floorName)) {
@@ -93,40 +95,64 @@ public class SyncData {
                     String remark = this.combinePartMappingVarietyMessages(l);
                     sche.setRemark(remark);
                 } catch (Exception ex) {
+                    logger.error(s.getModelName() + " getPartMappingVariety error...");
                     logger.error(ex.getMessage(), ex);
                 }
 
                 lineSchedules.add(sche);
             }
         });
-        
+
         //object can't references an unsaved transient instance
-        lineScheduleRepo.saveAll(lineSchedules);
+        //Save data to db first, and it can set relationship to warehouse object
+        List<LineSchedule> dbLineSchedules = lineScheduleRepo.findByOnBoardDateBetween(
+                nextDay.withTime(0, 0, 0, 0).toDate(), nextDay.withTime(23, 0, 0, 0).toDate());
+        List<LineSchedule> newData = findNewData(lineSchedules, dbLineSchedules);
+        logger.info("Begin save " + newData.size() + " data into lineSchedule");
+        lineScheduleRepo.saveAll(newData);
 
-        List<Warehouse> needUpdateWarehouses = new ArrayList();
-        //When schedule's po is already in warehouse, set status to complete.
-        floors.forEach(f -> {
-            List<Warehouse> warehouses = warehouseRepo.findByFloorAndFlag(f, 0);
-            warehouses.forEach(w -> {
-                LineSchedule s = lineSchedules.stream()
-                        .filter(ls -> ls.getFloor().equals(f) && ls.getPo().equals(w.getPo()))
-                        .findFirst()
-                        .orElse(null);
-                if (s != null) {
-                    w.setLineSchedule(s);
-                    needUpdateWarehouses.add(w);
-                    s.setLineScheduleStatus(inWarehouse);
-                }
+        //Update schedule status & add storagespace location
+        if (!newData.isEmpty()) {
+            List<Warehouse> needUpdateWarehouses = new ArrayList();
+            List<Integer> recNotMappingWareHouseIds = new ArrayList();
+            
+            //When schedule's po is already in warehouse, set status to complete.
+            floors.forEach(f -> {
+                List<Warehouse> warehouses = warehouseRepo.findByFloorAndFlag(f, 0);
+                warehouses.forEach(w -> {
+                    LineSchedule s = newData.stream()
+                            .filter(ls -> ls.getFloor().equals(f) && ls.getPo().equals(w.getPo()))
+                            .findFirst()
+                            .orElse(null);
+                    if (s != null) {
+                        w.setLineSchedule(s);
+                        needUpdateWarehouses.add(w);
+                        s.setLineScheduleStatus(inWarehouse);
+                        s.setStorageSpace(w.getStorageSpace());
+                    } else {
+                        recNotMappingWareHouseIds.add(w.getId());
+                    }
+                });
             });
-        });
 
-        if (!needUpdateWarehouses.isEmpty()) {
-            logger.info("Begin update " + needUpdateWarehouses.size() + " data in warehouse");
-            warehouseRepo.saveAll(needUpdateWarehouses);
+            logger.info("Warehouses data with id " + recNotMappingWareHouseIds.toString() + " not in the schedule.");
+
+            if (!needUpdateWarehouses.isEmpty()) {
+                logger.info("Begin update " + needUpdateWarehouses.size() + " data in warehouse");
+                warehouseRepo.saveAll(needUpdateWarehouses);
+            } else {
+                logger.info("No match warehouse in schedule need to update");
+            }
+
+            //Because lineSchedule's "status" and "storageSpace" field changed, update result again.
+            lineScheduleRepo.saveAll(newData);
         }
-        
-        logger.info("Begin save " + lineSchedules.size() + " data into lineSchedule");
-        lineScheduleRepo.saveAll(lineSchedules);
+
+    }
+
+    private List<LineSchedule> findNewData(List<LineSchedule> d1, List<LineSchedule> dataInDb) {
+        List<LineSchedule> newData = (List<LineSchedule>) CollectionUtils.subtract(d1, dataInDb);
+        return newData;
     }
 
     private String combinePartMappingVarietyMessages(List<PartMappingVariety> l) {

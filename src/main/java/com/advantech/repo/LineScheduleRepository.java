@@ -34,4 +34,5 @@ public interface LineScheduleRepository extends JpaRepository<LineSchedule, Inte
     
     public List<LineSchedule> findByLine(Line line);
 
+    public List<LineSchedule> findByOnBoardDateBetween(Date sD, Date eD);
 }

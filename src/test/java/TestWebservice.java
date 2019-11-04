@@ -5,14 +5,13 @@
  */
 
 import com.advantech.helper.WorkDateUtils;
-import com.advantech.model.LineSchedule;
 import com.advantech.webservice.port.PartMappingVarietyQueryPort;
 import com.advantech.webservice.root.PartMappingVarietyQueryRoot;
 import com.advantech.webservice.unmarshallclass.PartMappingVariety;
 import com.advantech.repo.LineScheduleRepository;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
-import org.joda.time.DateTime;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +43,14 @@ public class TestWebservice {
 
     @Test
     @Transactional
-    @Rollback(false)
+    @Rollback(true)
     public void testPartMappingVarietyQueryPort() throws Exception {
-
+        PartMappingVarietyQueryRoot root = new PartMappingVarietyQueryRoot();
+        PartMappingVarietyQueryRoot.PARTMAPPINGVARIETY pmv = root.getPARTMAPPINGVARIETY();
+        pmv.setITEMNO("C-LAM-685-900986-1");
+        List<PartMappingVariety> l = partMappingVarietyQueryPort.query(root);
+        assertTrue(!l.isEmpty());
+        System.out.println(combinePartMappingVarietyMessages(l));
     }
 
     private String combinePartMappingVarietyMessages(List<PartMappingVariety> l) {

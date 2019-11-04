@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.voodoodyne.jackson.jsog.JSOGGenerator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -191,6 +192,44 @@ public class LineSchedule implements java.io.Serializable {
 
     public void setLineSchedulePriorityOrder(Integer lineSchedulePriorityOrder) {
         this.lineSchedulePriorityOrder = lineSchedulePriorityOrder;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + Objects.hashCode(this.po);
+        hash = 97 * hash + Objects.hashCode(this.modelName);
+        hash = 97 * hash + this.quantity;
+        hash = 97 * hash + Objects.hashCode(this.createDate);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final LineSchedule other = (LineSchedule) obj;
+        if (this.quantity != other.quantity) {
+            return false;
+        }
+        if (!Objects.equals(this.po, other.po)) {
+            return false;
+        }
+        if (!Objects.equals(this.modelName, other.modelName)) {
+            return false;
+        }
+        if (!Objects.equals(this.createDate, other.createDate)) {
+            System.out.println(4);
+            return false;
+        }
+        return true;
     }
 
 }
