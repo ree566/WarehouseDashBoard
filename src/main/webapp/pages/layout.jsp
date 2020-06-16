@@ -131,6 +131,9 @@
                         <a href="#sub1" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">拉料</a>
                         <ul class="collapse list-unstyled show" id="sub1">
                             <li>
+                                <a href="layout.jsp?content=warehouse&floor_id=6#">4F</a>
+                            </li>
+                            <li>
                                 <a href="layout.jsp?content=warehouse&floor_id=1#">5F</a>
                             </li>
                             <li>

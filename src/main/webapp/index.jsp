@@ -33,6 +33,9 @@
             <div>
                 <ul>
                     <li>
+                        <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=6#" />">4F首頁</a>
+                    </li>
+                    <li>
                         <a href="<c:url value="/pages/layout.jsp?content=warehouse&floor_id=1#" />">5F首頁</a>
                     </li>
                     <li>

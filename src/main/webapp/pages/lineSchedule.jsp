@@ -159,23 +159,23 @@
             console.log($("#from").val());
             table2.ajax.reload();
         });
-		
-		var input_filter_value;
-		var input_filter_timeout = 1500;
-		$("div.dataTables_filter input").unbind();
-		$("div.dataTables_filter input").keyup( function (e) {
-			var p = $(this).parents(".dataTables_filter");
-			var tb = p.attr("id") == "favourable_filter" ? table : table2;
-			input_filter_value=this.value;
-			clearTimeout(input_filter_timeout);
-			input_filter_timeout=setTimeout(function(){
-				tb.search( input_filter_value ).draw();
-			}, tb.context[0].searchDelay);
-	 
-			// if (e.keyCode == 13) {
-			//  usertable.search( this.value ).draw();
-			// }
-		});
+
+        var input_filter_value;
+        var input_filter_timeout = 1500;
+        $("div.dataTables_filter input").unbind();
+        $("div.dataTables_filter input").keyup(function (e) {
+            var p = $(this).parents(".dataTables_filter");
+            var tb = p.attr("id") == "favourable_filter" ? table : table2;
+            input_filter_value = this.value;
+            clearTimeout(input_filter_timeout);
+            input_filter_timeout = setTimeout(function () {
+                tb.search(input_filter_value).draw();
+            }, tb.context[0].searchDelay);
+
+            // if (e.keyCode == 13) {
+            //  usertable.search( this.value ).draw();
+            // }
+        });
 
         function getDate(element) {
             var date;
@@ -330,7 +330,7 @@
                 "select": true,
                 "searchDelay": 1000,
                 "ordering": true,
-				"searchDelay": 1500
+                "searchDelay": 1500
             });
 
             table.on('error.dt', function (e, settings, techNote, message) {

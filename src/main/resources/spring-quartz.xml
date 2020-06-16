@@ -13,7 +13,7 @@
     
     <bean id="Sync-Trig" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="jobDetail" ref="Sync-Job" />
-        <property name="cronExpression" value="0 0 6 ? * MON-FRI *" />
+        <property name="cronExpression" value="0 30 6 ? * MON-FRI *" />
     </bean>
     
     <!--job2 setting-->
