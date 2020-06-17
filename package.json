@@ -37,6 +37,6 @@
 		"tooltipster": "4.2.6"
 	},
 	"optionalDependencies": {
-		"jquery": "3.4.1"
+		"jquery": "3.5.0"
 	}
 }
