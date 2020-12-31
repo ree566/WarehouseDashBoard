@@ -50,7 +50,7 @@
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <property name="connectionTestQuery" value="SELECT 1" />
         <property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver" />
-        <property name="jdbcUrl" value="jdbc:jtds:sqlserver://M3-SERVER/WarehouseDashBoard" />
+        <property name="jdbcUrl" value="jdbc:jtds:sqlserver://172.20.131.241/WarehouseDashBoard" />
         <property name="username" value="waychien" />
         <property name="password" value="m3server" />
     </bean>
@@ -151,7 +151,7 @@
     <!--Email setting-->
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host" value="Relay.advantech.com.tw" />
-        <property name="port" value="25" />
+        <property name="port" value="2526" />
 
         <property name="javaMailProperties">
             <props>
