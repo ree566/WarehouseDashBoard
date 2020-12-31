@@ -23,6 +23,7 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ public class SyncData {
     public void execute() {
 
         DateTime nextDay = workDateUtils.findNextDay();
+//        DateTime nextDay = new DateTime().withTime(0, 0, 0, 0);
 
         List<Floor> floors = floorRepo.findAll();
         LineScheduleStatus defaultStatus = statusRepo.getOne(1);
@@ -79,9 +81,13 @@ public class SyncData {
             String floorName = s.getFloorName();
             if ("M2".equals(floorName)) {
                 floorName = "5F";
+            } else if ("M3".equals(floorName)) {
+                floorName = "6F";
             } else if ("M6".equals(floorName)) {
                 floorName = "7F";
             }
+
+            //Need a final value to search with lambda
             final String floor = floorName;
             Floor filterFloor = floors.stream().filter(f -> f.getName().equals(floor)).findFirst().orElse(null);
             if (filterFloor != null) {
@@ -115,7 +121,7 @@ public class SyncData {
         if (!newData.isEmpty()) {
             List<Warehouse> needUpdateWarehouses = new ArrayList();
             List<Integer> recNotMappingWareHouseIds = new ArrayList();
-            
+
             //When schedule's po is already in warehouse, set status to complete.
             floors.forEach(f -> {
                 List<Warehouse> warehouses = warehouseRepo.findByFloorAndFlag(f, 0);

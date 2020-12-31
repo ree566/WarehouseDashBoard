@@ -1,1 +1,3 @@
 /src/main/webapp/libs/
+/target/
+/node_modules/
