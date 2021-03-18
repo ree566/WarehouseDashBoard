@@ -81,7 +81,7 @@ public class SyncData {
             String floorName = s.getFloorName();
             if ("M2".equals(floorName)) {
                 floorName = "5F";
-            } else if ("M3".equals(floorName)) {
+            } else if ("M3".equals(floorName) || "TWM3".equals(floorName)) {
                 floorName = "6F";
             } else if ("M6".equals(floorName)) {
                 floorName = "7F";

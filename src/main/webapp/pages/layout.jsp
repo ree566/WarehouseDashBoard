@@ -130,9 +130,9 @@
                                                 </ul>-->
                         <a href="#sub1" class="dropdown-toggle" data-toggle="collapse" aria-expanded="false">拉料</a>
                         <ul class="collapse list-unstyled show" id="sub1">
-                            <li>
+<!--                            <li>
                                 <a href="layout.jsp?content=warehouse&floor_id=6#">4F</a>
-                            </li>
+                            </li>-->
                             <li>
                                 <a href="layout.jsp?content=warehouse&floor_id=1#">5F</a>
                             </li>
@@ -152,9 +152,9 @@
                     <li>
                         <a href="#sub2" class="dropdown-toggle" data-toggle="collapse" aria-expanded="true">備料</a>
                         <ul class="collapse list-unstyled show" id="sub2">
-                            <li>
+<!--                            <li>
                                 <a href="layout.jsp?content=lineSchedule&floor_id=1#">5F</a>
-                            </li>
+                            </li>-->
                             <li>
                                 <a href="layout.jsp?content=lineSchedule&floor_id=2#">6F</a>
                             </li>
@@ -175,7 +175,7 @@
                                             <a href="#">Contact</a>
                                         </li>-->
                     <li>
-                        <a href="<c:url value="http://172.20.131.208/SAP/Login.aspx " />">拉備料系統</a>
+                        <a href="<c:url value="http://172.20.128.223/SAP/Login.aspx " />">拉備料系統</a>
                     </li>
                     <li>
                         <a href="<c:url value="/logout" />" class="text-danger">登出</a>
