@@ -26,6 +26,7 @@
 
         <!-- Bootstrap core CSS -->
         <link href="<c:url value="/libs/bootstrap/bootstrap.css" />" rel="stylesheet">
+        <link href="<c:url value="/libs/opensans.css" />" rel="stylesheet">
         <link href="<c:url value="/libs/jquery.mCustomScrollbar/style3.css" />" rel="stylesheet">
 
         <!-- Custom styles for this template -->
@@ -55,6 +56,7 @@
         <script src="<c:url value="/libs/popper.js/popper.js" />" ></script>
         <script src="<c:url value="/libs/font-awesome/solid.js" />" ></script>
         <script defer src="<c:url value="/libs/font-awesome/fontawesome.js"/>" ></script>
+        <script defer src="<c:url value="/libs/jquery.mousewheel/jquery.mousewheel.min.js" />"></script>
         <script defer src="<c:url value="/libs/jquery.mCustomScrollbar/jquery.mCustomScrollbar.min.js" />"></script>
 
         <script src="<c:url value="/libs/jsog/JSOG.js" />"></script>

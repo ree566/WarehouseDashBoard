@@ -346,7 +346,7 @@
             search.trigger("keyup");
         });
 
-        $('input').keypress(function (e) {
+        $('#po').keypress(function (e) {
             if (e.which == 13) {
                 $("#add-po").trigger("click");
             }
